@@ -13,7 +13,7 @@
         {% if user.is_authenticated %}
             <ul class="menu">
                 <li {% if section == "dashboard" %}class="selected"{% endif %}>
-                    <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
                 </li>
                 <li {% if section == "images" %}class="selected"{% endif %}>
                     <a href="#">Images</a>
@@ -26,12 +26,12 @@
         <span class="user">
             {% if user.is_authenticated %}
                 Hello {{ request.user.firstname|default:request.user.username }}, 
-                <form method="post" action="{% url 'accounts:logout' %}">
+                <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit">Logout</button>
                 </form>
             {% else %}
-                <a href="{% url 'accounts:login' %}">Login</a>
+                <a href="{% url 'login' %}">Login</a>
             {% endif %}
         </span>
 
