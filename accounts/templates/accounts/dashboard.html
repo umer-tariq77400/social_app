@@ -5,4 +5,6 @@
 {% block content %}
 <h1>Dashboard</h1>
 <p>Welcome to your Dashboard</p>
+<p>You can edit your profile information <a href="{% url 'edit' %}">here</a>.</p>
+<p>You can change your password <a href="{% url 'password_change' %}">here</a>.</p>
 {% endblock content %}

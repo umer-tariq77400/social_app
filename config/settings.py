@@ -129,3 +129,7 @@ LOGOUT_URL = "logout"
 
 #  Email configuration for password reset
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Media files settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
