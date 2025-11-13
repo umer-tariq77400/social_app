@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block title %}Disconnect Social Account{% endblock title %} {% block content %}
+<div class="disconnect-container">
+  <h1>Disconnect {{ backend|title }} Account</h1>
+  <p>Are you sure you want to disconnect your {{ backend|title }} account from your profile?</p>
+  <p><strong>Note:</strong> You will no longer be able to log in using {{ backend|title }}.</p>
+
+  <form method="post" class="disconnect-form">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Disconnect {{ backend|title }}</button>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+
+<style>
+  .disconnect-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .disconnect-form {
+    margin-top: 2rem;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+</style>
+{% endblock content %}

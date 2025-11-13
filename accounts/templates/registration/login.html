@@ -19,5 +19,14 @@
     </form>
     <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
     <p><a href="{% url 'register' %}">Create an account</a></p>
+    <div class="social">
+        <ul>
+            <li class="google">
+                <a href="{% url 'social:begin' 'google-oauth2' %}">
+                    Sign in with Google
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 {% endblock content %}

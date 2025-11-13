@@ -1,10 +1,75 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard{% endblock title %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Dashboard{% endblock title %} {% block content %}
 <h1>Dashboard</h1>
 <p>Welcome to your Dashboard</p>
-<p>You can edit your profile information <a href="{% url 'edit' %}">here</a>.</p>
-<p>You can change your password <a href="{% url 'password_change' %}">here</a>.</p>
+
+<div class="dashboard-actions">
+  <p>You can edit your profile information <a href="{% url 'edit' %}">here</a>.</p>
+  <p>You can change your password <a href="{% url 'password_change' %}">here</a>.</p>
+</div>
+
+<div class="social-accounts">
+  <h2>Connected Social Accounts</h2>
+  {% if user.social_auth.all %}
+  <p>You have the following social accounts connected:</p>
+  <ul>
+    {% for social in user.social_auth.all %}
+    <li>
+      <strong>{{ social.provider|title }}</strong>
+      <a href="{% url 'disconnect_social' social.provider %}" class="btn btn-small btn-danger"> Disconnect </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No social accounts connected yet.</p>
+  {% endif %}
+</div>
+
+<style>
+  .dashboard-actions {
+    margin: 2rem 0;
+  }
+
+  .social-accounts {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+  }
+
+  .social-accounts ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .social-accounts li {
+    padding: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+</style>
 {% endblock content %}
