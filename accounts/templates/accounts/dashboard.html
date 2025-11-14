@@ -1,6 +1,16 @@
 {% extends "base.html" %} {% block title %}Dashboard{% endblock title %} {% block content %}
 <h1>Dashboard</h1>
-<p>Welcome to your Dashboard</p>
+
+{% with total_images_created=request.user.imagemodel_set.count %}
+<p>Welcome to your Dashboard. You have bookmarked {{ total_images_created }} images.</p>
+{% endwith %}
+
+<div class="bookmarklet-section">
+  <p>Drag the following bookmarklet to your bookmarks bar to bookmark images from other websites:</p>
+  <div class="bookmarklet-button">
+    <a href="{{ bookmarklet_code }}" class="bookmarklet-link">📌 Bookmark Images</a>
+  </div>
+</div>
 
 <div class="dashboard-actions">
   <p>You can edit your profile information <a href="{% url 'edit' %}">here</a>.</p>
@@ -25,6 +35,36 @@
 </div>
 
 <style>
+  .bookmarklet-section {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+  }
+
+  .bookmarklet-button {
+    margin: 1rem 0 0 0;
+    text-align: center;
+  }
+
+  .bookmarklet-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: move;
+    transition: background-color 0.3s;
+    user-select: none;
+  }
+
+  .bookmarklet-link:hover {
+    background-color: #0056b3;
+  }
+
   .dashboard-actions {
     margin: 2rem 0;
   }

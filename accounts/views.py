@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from .models import Profile
 from django.contrib import messages
 from social_django.models import UserSocialAuth
+import os
 
 
 @login_required
@@ -32,7 +34,18 @@ def edit(request):
 
 @login_required
 def dashboard(request):
-    return render(request, "accounts/dashboard.html", {"section": "dashboard"})
+    # Load bookmarklet code from file
+    bookmarklet_file = os.path.join(
+        settings.BASE_DIR, "images", "templates", "bookmarklet_launcher.js"
+    )
+    with open(bookmarklet_file, "r") as f:
+        bookmarklet_code = "javascript:" + f.read().strip()
+
+    return render(
+        request,
+        "accounts/dashboard.html",
+        {"section": "dashboard", "bookmarklet_code": bookmarklet_code},
+    )
 
 
 @login_required

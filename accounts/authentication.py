@@ -31,7 +31,7 @@ def get_or_create_user_by_email(backend, details, user=None, *args, **kwargs):
     if user:
         # User already exists, return it
         return {"user": user}
-    
+
     email = details.get("email")
     if not email:
         # No email provided, let the default pipeline handle it

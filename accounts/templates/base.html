@@ -74,5 +74,10 @@
         {% block content %}
         {% endblock %}
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% block domready %}
+            {% endblock domready %}
+    </script>
 </body>
 </html>
