@@ -4,30 +4,73 @@
 {% block title %}{{ image.title }}{% endblock title %}
 
 {% block content %}
-  <h1>{{ image.title }}</h1>
-  <a href="{{ image.url }}">
-    <img src="{% thumbnail image.image "300x0" %}" alt="{{ image.title }}">
-  </a>
-  {% with total_likes=image.users_like.count %}
-    <div class="image-info">
-      <div>
-        <span class="count">
-          {{ total_likes }} like{{ total_likes|pluralize }}
-        </span>
-      </div>
-      {{ image.description|linebreaks }}
-    </div>
-    <div class="image_likes">
-      {% for user in image.users_like.all %}
-        <div>
-          {% if user.profile_photo %}
-            <img src="{{ user.profile_photo.url }}" alt="{{ user.username }}" class="like-user-photo">
-          {% endif %}
-          <p>{{ user.first_name }}</p>
-        </div>
-      {% empty %}
-        <span>No likes yet.</span>
-      {% endfor %}
-    </div>
-  {% endwith %}
+	<h1>{{ image.title }}</h1>
+	<a href="{{ image.url }}">
+		<img src="{{ image.image.url }}" alt="{{ image.title }}">
+	</a>
+	{% with total_likes=image.users_like.count users_like=image.users_like.all %}
+		<div class="image-info">
+			<div>
+				<span class="count">
+					<span class="total">{{ total_likes }}</span> like{{ total_likes|pluralize }}
+				</span>
+				<a href="#" class="like button" data-id="{{ image.id }}" data-action="{% if user in users_like %}unlike{% else %}like{% endif %}">
+					{% if user in users_like %}
+						Unlike
+					{% else %}
+						Like
+					{% endif %}
+				</a>
+			</div>
+			{{ image.description|linebreaks }}
+		</div>
+		<div class="image-likes">
+			{% for user in users_like %}
+				<div>
+					{% if user.profile.photo %}
+						<img src="{% thumbnail user.profile.photo "60x60" crop="center" quality=50 %}" alt="{{ user.username }}" class="like-user-photo">
+					{% endif %}
+					<p>{{ user.first_name }}</p>
+				</div>
+			{% empty %}
+				<span>No likes yet.</span>
+			{% endfor %}
+		</div>
+	{% endwith %}
 {% endblock content %}
+
+{% block domready %}
+  const url = "{% url 'images:like' %}";
+	var options = {
+		method: "POST",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		"mode": "same-origin",
+	}
+	document.querySelector("a.like")
+	  .addEventListener("click", function(e){
+			e.preventDefault();
+			var likeButton = this;
+			// AJAX request to like/unlike the image
+			var formData = new FormData();
+			var previousAction = likeButton.getAttribute("data-action");
+			formData.append("id", likeButton.getAttribute("data-id"));
+			formData.append("action", previousAction);
+			options.body = formData;
+			fetch(url, options)
+				.then(response => response.json())
+				.then(data => {
+					if (data.status == "ok") {
+						// Change the like/unlike button state
+						var action = previousAction == "like" ? "unlike" : "like";
+						likeButton.setAttribute("data-action", action);
+						likeButton.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+						// Update the total likes count
+						var totalLikesElem = document.querySelector("span.total");
+						var totalLikes = parseInt(totalLikesElem.textContent);
+						totalLikesElem.textContent = previousAction == "like" ? totalLikes + 1 : totalLikes - 1;
+					}
+				})
+		})
+{% endblock domready %}
