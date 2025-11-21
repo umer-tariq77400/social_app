@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% load static %}
+{% load thumbnail %}
+
+{% block title %}{{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/user_detail.css' %}">
+
+
+<div class="profile-header">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        {% if user.profile.photo %}
+            <img src="{% thumbnail user.profile.photo 120x120 crop='center' quality=95 %}" 
+                 style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid white; object-fit: cover;" 
+                 alt="{{ user.username }}">
+        {% else %}
+            <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; border: 3px solid white;">
+                <i class="fas fa-user" style="font-size: 50px; color: white;"></i>
+            </div>
+        {% endif %}
+        <div>
+            <h1 style="margin: 0; color: white; border: none; padding: 0;">{{ user.get_full_name|default:user.username }}</h1>
+            <p style="margin: 5px 0 0 0; font-size: 16px; color: #f3f7cc;">@{{ user.username }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="profile-container">
+    <!-- Left Column - Profile Info -->
+    <div class="profile-card">
+        <div class="profile-body">
+            <div class="profile-meta">
+                {% if user.email %}
+                    <div class="meta-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>{{ user.email }}</span>
+                    </div>
+                {% endif %}
+
+                {% if user.profile.date_of_birth %}
+                    <div class="meta-item">
+                        <i class="fas fa-birthday-cake"></i>
+                        <span>{{ user.profile.date_of_birth|date:"M d, Y" }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Joined {{ user.date_joined|date:"M Y" }}</span>
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ user.rel_from_set.count }}</div>
+                    <div class="stat-label">Following</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ user.rel_to_set.count }}</div>
+                    <div class="stat-label">Followers</div>
+                </div>
+            </div>
+
+            <!-- Follow/Unfollow Button -->
+            {% if request.user != user %}
+                {% if user in request.user.following.all %}
+                    <a href="#" class="follow follow-btn unfollow" data-id="{{ user.id }}" data-action="unfollow">
+                        <i class="fas fa-user-check"></i> Following
+                    </a>
+                {% else %}
+                    <a href="#" class="follow follow-btn" data-id="{{ user.id }}" data-action="follow">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Column - Stats and Followers -->
+    <div class="right-section">
+        <!-- Followers Section -->
+        {% if user.rel_to_set.all %}
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fas fa-users"></i>
+                    <span>Followers (<span class="followers-count-display">{{ user.rel_to_set.count }}</span>)</span>
+                </div>
+                <div class="following-grid">
+                    {% for contact in user.rel_to_set.all|slice:":6" %}
+                        <div class="following-item">
+                            <a href="{% url 'user_detail' contact.user_from.username %}">
+                                {% if contact.user_from.profile.photo %}
+                                    <img src="{% thumbnail contact.user_from.profile.photo 80x80 crop='center' quality=95 %}" 
+                                         alt="{{ contact.user_from.username }}">
+                                {% else %}
+                                    <div style="width: 60px; height: 60px; margin: 0 auto 10px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #12c064;">
+                                        <i class="fas fa-user" style="color: #12c064;"></i>
+                                    </div>
+                                {% endif %}
+                                <p class="username">{{ contact.user_from.username }}</p>
+                                <p class="email">{{ contact.user_from.email|truncatechars:15 }}</p>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if user.rel_to_set.count > 6 %}
+                    <div style="text-align: center; margin-top: 15px;">
+                        <small style="color: #999;">+{{ user.rel_to_set.count|add:"-6" }} more followers</small>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Quick Stats Card -->
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fas fa-chart-pie"></i>
+                <span>Quick Stats</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="text-align: center; padding: 15px; background: #f9fff7; border-radius: 8px; border-left: 4px solid #12c064;">
+                    <div style="font-size: 28px; font-weight: bold; color: #12c064;">{{ user.image_set.count|default:0 }}</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">Images Uploaded</div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: #f9fff7; border-radius: 8px; border-left: 4px solid #12c064;">
+                    <div style="font-size: 28px; font-weight: bold; color: #12c064;">{{ user.images_liked.count|default:0 }}</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">Likes Received</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Images Section - Full Width -->
+{% if user.image_set.all %}
+    <div class="section-card">
+        <div class="section-title">
+            <i class="fas fa-images"></i>
+            <span>Gallery ({{ user.image_set.count }})</span>
+        </div>
+        <div id="image-list">
+            {% include "images/image/list_images.html" with images=user.image_set.all %}
+        </div>
+    </div>
+{% else %}
+    <div class="section-card">
+        <div class="section-title">
+            <i class="fas fa-images"></i>
+            <span>Gallery</span>
+        </div>
+        <div class="empty-state">
+            <i class="fas fa-image"></i>
+            <p>No images uploaded yet</p>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    const url = '{% url "user_follow" %}';
+    var options = {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        mode: 'same-origin'
+    }
+    
+    document.querySelector('a.follow')?.addEventListener('click', function(e){
+        e.preventDefault();
+        var followButton = this;
+        // add request body
+        var formData = new FormData();
+        formData.append('id', followButton.dataset.id);
+        formData.append('action', followButton.dataset.action);
+        options['body'] = formData;
+        // send HTTP request
+        fetch(url, options)
+        .then(response => response.json())
+        .then(data => {
+            if (data['status'] === 'ok')
+            {
+                var previousAction = followButton.dataset.action;
+                // toggle button text and data-action
+                var action = previousAction === 'follow' ? 'unfollow' : 'follow';
+                followButton.dataset.action = action;
+                followButton.innerHTML = action === 'follow' 
+                    ? '<i class="fas fa-user-plus"></i> Follow' 
+                    : '<i class="fas fa-user-check"></i> Following';
+                
+                if (action === 'follow') {
+                    followButton.classList.remove('unfollow');
+                } else {
+                    followButton.classList.add('unfollow');
+                }
+                
+                // update follower count
+                var followerCount = document.querySelector('span.followers-count-display');
+                if (followerCount) {
+                    var totalFollowers = parseInt(followerCount.innerHTML);
+                    followerCount.innerHTML = previousAction === 'follow' ? 
+                        totalFollowers + 1 : totalFollowers - 1;
+                }
+                
+                // update stat item
+                var statCount = document.querySelector('.stat-item:nth-child(2) .stat-number');
+                if (statCount) {
+                    var count = parseInt(statCount.innerHTML);
+                    statCount.innerHTML = previousAction === 'follow' ? 
+                        count + 1 : count - 1;
+                }
+            }
+        })
+    });
+});
+</script>
+
+{% endblock %}

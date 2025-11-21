@@ -1,15 +1,20 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
-from .models import Profile
-from django.contrib import messages
-from social_django.models import UserSocialAuth
 import os
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from social_django.models import UserSocialAuth
+
+from .forms import ProfileEditForm, UserEditForm, UserRegistrationForm
+from .models import Contact, Profile
 
 
 @login_required
 def edit(request):
+    """Edit user profile""" 
     if request.method == "POST":
         user_form = UserEditForm(instance=request.user, data=request.POST)
         profile_form = ProfileEditForm(
@@ -90,3 +95,57 @@ def register(request):
     else:
         user_form = UserRegistrationForm()
     return render(request, "accounts/register.html", {"user_form": user_form})
+
+
+User = get_user_model()
+@login_required
+def user_list(request):
+    users = User.objects.filter(is_active=True)
+    return render(
+        request,
+        "accounts/user/list.html",
+        {"section": "people", "users": users}
+    )
+
+
+@login_required
+def user_detail(request, username):
+    user = get_object_or_404(User, username=username, is_active=True)
+    return render(
+        request,
+        "accounts/user/detail.html",
+        {"section": "people", "user": user}
+    )
+
+
+@login_required
+def user_follow(request):
+    """Handle follow/unfollow actions via AJAX."""
+    if request.method == "POST":
+        user_id = request.POST.get("id")
+        user_to_follow = get_object_or_404(User, id=user_id, is_active=True)
+        
+        if user_to_follow == request.user:
+            return JsonResponse({"status": "error", "message": "You cannot follow yourself"}, status=400)
+        
+        action = request.POST.get("action")
+        
+        try:
+            if action == "follow":
+                Contact.objects.get_or_create(
+                    user_from=request.user,
+                    user_to=user_to_follow
+                )
+            elif action == "unfollow":
+                Contact.objects.filter(
+                    user_from=request.user,
+                    user_to=user_to_follow
+                ).delete()
+            else:
+                return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+            
+            return JsonResponse({"status": "ok"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    
+    return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
