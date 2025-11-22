@@ -1,8 +1,10 @@
 {% extends "base.html" %} 
+{% load static %} 
 {% block title %}Images Bookmarked{% endblock title %} 
 
 {% block content %}
 <h1>Images Bookmarked</h1>
+<link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
 <div id="image-list">{% include "images/image/list_images.html" %}</div>
 {% endblock content %} 
 

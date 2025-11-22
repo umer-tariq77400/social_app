@@ -6,6 +6,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/user_detail.css' %}">
+<link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
 
 
 <div class="profile-header">
@@ -156,79 +157,6 @@
     </div>
 {% endif %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    
-    const csrftoken = getCookie('csrftoken');
-    const url = '{% url "user_follow" %}';
-    var options = {
-        method: 'POST',
-        headers: {'X-CSRFToken': csrftoken},
-        mode: 'same-origin'
-    }
-    
-    document.querySelector('a.follow')?.addEventListener('click', function(e){
-        e.preventDefault();
-        var followButton = this;
-        // add request body
-        var formData = new FormData();
-        formData.append('id', followButton.dataset.id);
-        formData.append('action', followButton.dataset.action);
-        options['body'] = formData;
-        // send HTTP request
-        fetch(url, options)
-        .then(response => response.json())
-        .then(data => {
-            if (data['status'] === 'ok')
-            {
-                var previousAction = followButton.dataset.action;
-                // toggle button text and data-action
-                var action = previousAction === 'follow' ? 'unfollow' : 'follow';
-                followButton.dataset.action = action;
-                followButton.innerHTML = action === 'follow' 
-                    ? '<i class="fas fa-user-plus"></i> Follow' 
-                    : '<i class="fas fa-user-check"></i> Following';
-                
-                if (action === 'follow') {
-                    followButton.classList.remove('unfollow');
-                } else {
-                    followButton.classList.add('unfollow');
-                }
-                
-                // update follower count
-                var followerCount = document.querySelector('span.followers-count-display');
-                if (followerCount) {
-                    var totalFollowers = parseInt(followerCount.innerHTML);
-                    followerCount.innerHTML = previousAction === 'follow' ? 
-                        totalFollowers + 1 : totalFollowers - 1;
-                }
-                
-                // update stat item
-                var statCount = document.querySelector('.stat-item:nth-child(2) .stat-number');
-                if (statCount) {
-                    var count = parseInt(statCount.innerHTML);
-                    statCount.innerHTML = previousAction === 'follow' ? 
-                        count + 1 : count - 1;
-                }
-            }
-        })
-    });
-});
-</script>
+<script src="{% static 'accounts/js/follow.js' %}"></script>
 
 {% endblock %}

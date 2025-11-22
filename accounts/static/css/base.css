@@ -161,32 +161,6 @@ ul.messages li.info {
     color:#fff;
 }
 
-ul.messages li.success { background:#81ce81; }
-ul.messages li.success a { color:#0ac33e; }
-
-ul.messages li.error { background:#a30029; color:#e9828e; }
-ul.messages li.error a { color:#e9828e; }
-
-ul.messages li.info { background:#faffae; color:#696b4e; }
-ul.messages li.info a { color:#1586de; }
-
-ul.messages li.warning { background:#de9404; }
-ul.messages li.warning a { color:#f49000; }
-
-ul.messages li a.close {
-    margin:0;
-    float:right;
-    opacity:1;
-    border:0;
-    box-shadow:none;
-    text-shadow:none;
-}
-
-.login-form {
-    float:left;
-}
-
-/* social-auth */
 .social {
     float:right;
 }
@@ -225,18 +199,6 @@ ul.messages li a.close {
 }
 a.like, a.follow { float:right; margin-top:-8px; }
 
-#image-list { overflow:hidden; }
-#image-list .image {
-    float:left;
-    width:220px;
-    height:300px;
-    margin:0 10px 10px 10px;
-    border-top:8px solid #12c064;
-    background:#eee;
-}
-#image-list img { width:220px; height:220px; }
-#image-list .info { padding:10px; }
-#image-list .info a { color:#333; }
 .image-likes {
     display:flex;
     flex-wrap:wrap;

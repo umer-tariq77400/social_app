@@ -10,6 +10,8 @@ from social_django.models import UserSocialAuth
 
 from .forms import ProfileEditForm, UserEditForm, UserRegistrationForm
 from .models import Contact, Profile
+from actions.models import Action
+from actions.utils import create_action
 
 
 @login_required
@@ -39,6 +41,13 @@ def edit(request):
 
 @login_required
 def dashboard(request):
+    """Display user dashboard with bookmarklet code."""
+    # Displaying the activity stream of the users followings
+    actions = Action.objects.exclude(user=request.user)
+    following_ids = request.user.following.values_list("id", flat=True)
+    if following_ids:
+        actions = actions.filter(user_id__in=following_ids)[:10]
+        actions = actions.select_related("user", "user__profile").prefetch_related("target")
     # Load bookmarklet code from file
     bookmarklet_file = os.path.join(
         settings.BASE_DIR, "images", "templates", "bookmarklet_launcher.js"
@@ -49,7 +58,7 @@ def dashboard(request):
     return render(
         request,
         "accounts/dashboard.html",
-        {"section": "dashboard", "bookmarklet_code": bookmarklet_code},
+        {"section": "dashboard", "bookmarklet_code": bookmarklet_code, "actions": actions},
     )
 
 
@@ -89,6 +98,7 @@ def register(request):
             new_user.save()
             # Create the user profile
             Profile.objects.create(user=new_user)
+            create_action(new_user, "has created an account")
             return render(
                 request, "accounts/register_done.html", {"new_user": new_user}
             )
@@ -136,6 +146,7 @@ def user_follow(request):
                     user_from=request.user,
                     user_to=user_to_follow
                 )
+                create_action(request.user, "is following", user_to_follow)
             elif action == "unfollow":
                 Contact.objects.filter(
                     user_from=request.user,

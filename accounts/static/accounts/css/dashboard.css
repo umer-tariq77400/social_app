@@ -1,0 +1,76 @@
+.bookmarklet-section {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+  }
+
+  .bookmarklet-button {
+    margin: 1rem 0 0 0;
+    text-align: center;
+  }
+
+  .bookmarklet-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: move;
+    transition: background-color 0.3s;
+    user-select: none;
+  }
+
+  .bookmarklet-link:hover {
+    background-color: #0056b3;
+  }
+
+  .dashboard-actions {
+    margin: 2rem 0;
+  }
+
+  .social-accounts {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+  }
+
+  .social-accounts ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .social-accounts li {
+    padding: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
