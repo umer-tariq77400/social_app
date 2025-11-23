@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-of7wq7ltkfop5=u7w%8x8)p)z4-z$&ptjlvt5gv6fl#79@u-mm"
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-of7wq7ltkfop5=u7w%8x8)p)z4-z$&ptjlvt5gv6fl#79@u-mm")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ["localhost", "mysite.com", "127.0.0.1"]
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=lambda v: [s.strip() for s in v.split(",")])
 
 
 # Application definition
@@ -84,12 +84,24 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default=""),
+            "USER": config("DB_USER", default=""),
+            "PASSWORD": config("DB_PASSWORD", default=""),
+            "HOST": config("DB_HOST", default=""),
+            "PORT": config("DB_PORT", default=""),
+        }
+    }
 
 
 # Password validation
@@ -175,8 +187,15 @@ LOGOUT_URL = "logout"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Media files settings
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+if DEBUG:
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    AZURE_ACCOUNT_NAME = config("AZURE_ACCOUNT_NAME")
+    AZURE_ACCOUNT_KEY = config("AZURE_ACCOUNT_KEY")
+    AZURE_CONTAINER_NAME = config("AZURE_CONTAINER_NAME")
+    AZURE_BLOB_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER_NAME}/"
+
 
 # Easy Thumbnails configuration
 THUMBNAIL_DEBUG = DEBUG
@@ -198,7 +217,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-
-REDIS_HOST = '192.168.43.253'
-REDIS_PORT = 6379
-REDIS_DB = 0
+# Redis settings
+REDIS_HOST = config("REDIS_HOST", default="")
+REDIS_PORT = config("REDIS_PORT", default=12848, cast=int)
+REDIS_DB = config("REDIS_DB", default=0, cast=int)
+REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
