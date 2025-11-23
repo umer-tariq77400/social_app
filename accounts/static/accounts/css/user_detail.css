@@ -8,6 +8,100 @@
     margin-bottom: 40px;
 }
 
+.profile-header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid white;
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+}
+
+.profile-avatar-placeholder i {
+    font-size: 50px;
+    color: white;
+}
+
+.profile-name {
+    margin: 0;
+    color: white;
+    border: none;
+    padding: 0;
+}
+
+.profile-username {
+    margin: 5px 0 0 0;
+    font-size: 16px;
+    color: #f3f7cc;
+}
+
+.follower-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #12c064;
+}
+
+.follower-avatar-placeholder i {
+    color: #12c064;
+}
+
+.more-followers {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.more-followers small {
+    color: #999;
+}
+
+.quick-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.quick-stat-box {
+    text-align: center;
+    padding: 15px;
+    background: #f9fff7;
+    border-radius: 8px;
+    border-left: 4px solid #12c064;
+}
+
+.quick-stat-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: #12c064;
+}
+
+.quick-stat-label {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
 .profile-container {
     display: grid;
     grid-template-columns: 1fr 2fr;

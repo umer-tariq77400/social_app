@@ -2,10 +2,10 @@
 {% load static %}
 {% load thumbnail %}
 
-{% block title %}People{% endblock %}
+{% block title %}People{% endblock title %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/user_list.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/user_list.css' %}">
 
 <div class="people-header">
     <h1><i class="fas fa-users"></i> People</h1>
@@ -17,7 +17,7 @@
             <div class="user-item">
                 <div class="user-info">
                     {% if user.profile.photo %}
-                        <img src="{% thumbnail user.profile.photo 80x80 crop='center' quality=95 %}" alt="{{ user.username }}" class="user-photo">
+                        <img src="{% thumbnail user.profile.photo 80x80 crop='center' quality=95 %}" alt="{{ user.username }}" height="80" width="80" class="user-photo">
                     {% else %}
                         <div class="user-photo" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-user" style="color: #12c064; font-size: 32px;"></i>
@@ -75,4 +75,4 @@
 
 <script src="{% static 'accounts/js/follow.js' %}"></script>
 
-{% endblock %}
+{% endblock content %}

@@ -1,40 +1,13 @@
-{% extends "base.html" %} 
-{% load static %} 
-{% block title %}Images Bookmarked{% endblock title %} 
-
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+    Images Bookmarked
+{% endblock title %}
 {% block content %}
-<h1>Images Bookmarked</h1>
-<link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
-<div id="image-list">{% include "images/image/list_images.html" %}</div>
-{% endblock content %} 
-
+    <h1>Images Bookmarked</h1>
+    <link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
+    <div id="image-list">{% include "images/image/list_images.html" %}</div>
+{% endblock content %}
 {% block domready %}
-  var page = 1;
-  var emptyPage = false;
-  var blockRequest = false;
-  // Add infinite scroll functionality
-  window.addEventListener("scroll", function (e) { 
-    var margin = document.body.clientHeight - window.innerHeight - 200; 
-    if (window.pageYOffset > margin && !blockRequest && !emptyPage) {
-      blockRequest = true;
-      page += 1;
-      fetch("?images_only=1&page=" + page)
-        .then((response) => response.text())
-        .then((html) => {
-          if (html.trim().length == 0) {
-            emptyPage = true;
-          } else {
-            document.getElementById("image-list").insertAdjacentHTML("beforeend", html);
-            blockRequest = false;
-          }
-        })
-        .catch((error) => {
-          console.error("Infinite scroll fetch failed:", error);
-          blockRequest = false; // Allow retry on error
-        });
-    }
-  });
-  // Launch scroll event
-  const scrollEvent = new Event("scroll"); 
-  window.dispatchEvent(scrollEvent);
+    <script src="{% static 'js/infinite_scroll.js' %}"></script>
 {% endblock domready %}

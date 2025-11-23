@@ -2,27 +2,27 @@
 {% load static %}
 {% load thumbnail %}
 
-{% block title %}{{ user.get_full_name|default:user.username }}{% endblock %}
+{% block title %}{{ user.get_full_name|default:user.username }}{% endblock title %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/user_detail.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/user_detail.css' %}">
 <link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
 
-
 <div class="profile-header">
-    <div style="display: flex; align-items: center; gap: 20px;">
+    <div class="profile-header-content">
         {% if user.profile.photo %}
             <img src="{% thumbnail user.profile.photo 120x120 crop='center' quality=95 %}" 
-                 style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid white; object-fit: cover;" 
+                 class="profile-photo"
+                 width="120" height="120"
                  alt="{{ user.username }}">
         {% else %}
-            <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; border: 3px solid white;">
-                <i class="fas fa-user" style="font-size: 50px; color: white;"></i>
+            <div class="profile-avatar-placeholder">
+                <i class="fas fa-user"></i>
             </div>
         {% endif %}
         <div>
-            <h1 style="margin: 0; color: white; border: none; padding: 0;">{{ user.get_full_name|default:user.username }}</h1>
-            <p style="margin: 5px 0 0 0; font-size: 16px; color: #f3f7cc;">@{{ user.username }}</p>
+            <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+            <p class="profile-username">@{{ user.username }}</p>
         </div>
     </div>
 </div>
@@ -93,10 +93,11 @@
                             <a href="{% url 'user_detail' contact.user_from.username %}">
                                 {% if contact.user_from.profile.photo %}
                                     <img src="{% thumbnail contact.user_from.profile.photo 80x80 crop='center' quality=95 %}" 
+                                         width="80" height="80"
                                          alt="{{ contact.user_from.username }}">
                                 {% else %}
-                                    <div style="width: 60px; height: 60px; margin: 0 auto 10px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #12c064;">
-                                        <i class="fas fa-user" style="color: #12c064;"></i>
+                                    <div class="follower-avatar-placeholder">
+                                        <i class="fas fa-user"></i>
                                     </div>
                                 {% endif %}
                                 <p class="username">{{ contact.user_from.username }}</p>
@@ -106,8 +107,8 @@
                     {% endfor %}
                 </div>
                 {% if user.rel_to_set.count > 6 %}
-                    <div style="text-align: center; margin-top: 15px;">
-                        <small style="color: #999;">+{{ user.rel_to_set.count|add:"-6" }} more followers</small>
+                    <div class="more-followers">
+                        <small>+{{ user.rel_to_set.count|add:"-6" }} more followers</small>
                     </div>
                 {% endif %}
             </div>
@@ -119,14 +120,14 @@
                 <i class="fas fa-chart-pie"></i>
                 <span>Quick Stats</span>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div style="text-align: center; padding: 15px; background: #f9fff7; border-radius: 8px; border-left: 4px solid #12c064;">
-                    <div style="font-size: 28px; font-weight: bold; color: #12c064;">{{ user.image_set.count|default:0 }}</div>
-                    <div style="font-size: 13px; color: #666; margin-top: 5px;">Images Uploaded</div>
+            <div class="quick-stats-grid">
+                <div class="quick-stat-box">
+                    <div class="quick-stat-number">{{ user.image_set.count|default:0 }}</div>
+                    <div class="quick-stat-label">Images Uploaded</div>
                 </div>
-                <div style="text-align: center; padding: 15px; background: #f9fff7; border-radius: 8px; border-left: 4px solid #12c064;">
-                    <div style="font-size: 28px; font-weight: bold; color: #12c064;">{{ user.images_liked.count|default:0 }}</div>
-                    <div style="font-size: 13px; color: #666; margin-top: 5px;">Likes Received</div>
+                <div class="quick-stat-box">
+                    <div class="quick-stat-number">{{ user.images_liked.count|default:0 }}</div>
+                    <div class="quick-stat-label">Likes Received</div>
                 </div>
             </div>
         </div>
@@ -159,4 +160,8 @@
 
 <script src="{% static 'accounts/js/follow.js' %}"></script>
 
-{% endblock %}
+{% endblock content %}
+
+{% block domready %}
+<script src="{% static 'js/infinite_scroll.js' %}"></script>
+{% endblock domready %}
