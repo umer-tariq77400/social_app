@@ -47,7 +47,11 @@ INSTALLED_APPS = [
     "images",
     "easy_thumbnails",
     "actions",
+    "tailwind",
+    "theme"
 ]
+
+TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
@@ -164,7 +168,7 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.auth_allowed",
     "social_core.pipeline.social_auth.social_user",
     "social_core.pipeline.user.get_username",
-    "accounts.authentication.get_or_create_user_by_email",  # Add this BEFORE create_user
+    "accounts.authentication.get_or_create_user_by_email",
     "social_core.pipeline.user.create_user",
     "accounts.authentication.create_profile",
     "social_core.pipeline.social_auth.associate_user",
@@ -180,7 +184,7 @@ SOCIAL_AUTH_DISCONNECT_PIPELINE = (
 )
 
 LOGIN_REDIRECT_URL = "dashboard"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "logout"
 LOGOUT_URL = "logout"
 
 #  Email configuration for password reset

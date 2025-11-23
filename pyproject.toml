@@ -8,6 +8,7 @@ dependencies = [
     "django>=5.2.8",
     "django-debug-toolbar>=6.1.0",
     "django-extensions>=4.1",
+    "django-tailwind>=4.4.1",
     "easy-thumbnails>=2.10.1",
     "pillow>=12.0.0",
     "pyopenssl>=25.3.0",

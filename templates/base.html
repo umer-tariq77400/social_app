@@ -12,6 +12,8 @@
             {% endblock title %}
         </title>
         <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+        {% block extra_head %}{% endblock extra_head %}
     </head>
     <body data-follow-url="{% url 'user_follow' %}">
         <div id="header">
