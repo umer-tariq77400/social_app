@@ -1,3 +1,5 @@
+import redis
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -5,13 +7,12 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from actions.utils import create_action
+
 from .forms import ImageCreateForm
 from .models import Image
-from actions.utils import create_action
-import redis
-from django.conf import settings
 
-r = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
+r = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB, password=settings.REDIS_PASSWORD)
 
 @login_required
 def image_create(request):
@@ -80,8 +81,13 @@ def image_detail(request, id, slug):
     """
     image = get_object_or_404(Image, id=id, slug=slug)
 
-    total_views = r.incr(f"image:{image.id}:views")
-    r.zincrby("image_ranking", 1, image.id)
+    # Safely increment view counters; if Redis is unavailable, fallback gracefully
+    try:
+        total_views = r.incr(f"image:{image.id}:views")
+        r.zincrby("image_ranking", 1, image.id)
+    except Exception:
+        # Redis might not be configured or reachable; default to 0 views
+        total_views = 0
 
     return render(
         request,

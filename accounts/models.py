@@ -1,6 +1,5 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-
+from django.db import models
 
 # Add followers field to User model
 User = get_user_model()
@@ -20,6 +19,10 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile for user {self.user.username}"
+
+    def is_complete(self):
+        """Return True if optional profile fields are filled."""
+        return bool(self.date_of_birth and self.photo)
 
 
 class Contact(models.Model):

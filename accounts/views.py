@@ -8,15 +8,16 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from social_django.models import UserSocialAuth
 
-from .forms import ProfileEditForm, UserEditForm, UserRegistrationForm
-from .models import Contact, Profile
 from actions.models import Action
 from actions.utils import create_action
+
+from .forms import ProfileEditForm, UserEditForm, UserRegistrationForm
+from .models import Contact, Profile
 
 
 @login_required
 def edit(request):
-    """Edit user profile""" 
+    """Edit user profile"""
     if request.method == "POST":
         user_form = UserEditForm(instance=request.user, data=request.POST)
         profile_form = ProfileEditForm(
@@ -42,12 +43,23 @@ def edit(request):
 @login_required
 def dashboard(request):
     """Display user dashboard with bookmarklet code."""
-    # Displaying the activity stream of the users followings
-    actions = Action.objects.exclude(user=request.user)
+
+    # Retrieve actions only from users that the current user follows.
     following_ids = request.user.following.values_list("id", flat=True)
     if following_ids:
-        actions = actions.filter(user_id__in=following_ids)[:10]
-        actions = actions.select_related("user", "user__profile").prefetch_related("target")
+        # Retrieve actions from users that the current user follows,
+        # and also include the current user's own actions.
+        user_ids = list(following_ids)
+        user_ids.append(request.user.id)
+        actions = (
+            Action.objects.filter(user_id__in=user_ids)
+            .select_related("user", "user__profile")
+            .prefetch_related("target")
+            .order_by("-created")[:10]
+        )
+    else:
+        # If the user follows no one, show an empty action list.
+        actions = Action.objects.none()
     # Load bookmarklet code from file
     bookmarklet_file = os.path.join(
         settings.BASE_DIR, "images", "templates", "bookmarklet_launcher.js"
@@ -58,7 +70,11 @@ def dashboard(request):
     return render(
         request,
         "accounts/dashboard.html",
-        {"section": "dashboard", "bookmarklet_code": bookmarklet_code, "actions": actions},
+        {
+            "section": "dashboard",
+            "bookmarklet_code": bookmarklet_code,
+            "actions": actions,
+        },
     )
 
 
@@ -108,13 +124,13 @@ def register(request):
 
 
 User = get_user_model()
+
+
 @login_required
 def user_list(request):
     users = User.objects.filter(is_active=True)
     return render(
-        request,
-        "accounts/user/list.html",
-        {"section": "people", "users": users}
+        request, "accounts/user/list.html", {"section": "people", "users": users}
     )
 
 
@@ -122,9 +138,7 @@ def user_list(request):
 def user_detail(request, username):
     user = get_object_or_404(User, username=username, is_active=True)
     return render(
-        request,
-        "accounts/user/detail.html",
-        {"section": "people", "user": user}
+        request, "accounts/user/detail.html", {"section": "people", "user": user}
     )
 
 
@@ -134,29 +148,33 @@ def user_follow(request):
     if request.method == "POST":
         user_id = request.POST.get("id")
         user_to_follow = get_object_or_404(User, id=user_id, is_active=True)
-        
+
         if user_to_follow == request.user:
-            return JsonResponse({"status": "error", "message": "You cannot follow yourself"}, status=400)
-        
+            return JsonResponse(
+                {"status": "error", "message": "You cannot follow yourself"}, status=400
+            )
+
         action = request.POST.get("action")
-        
+
         try:
             if action == "follow":
                 Contact.objects.get_or_create(
-                    user_from=request.user,
-                    user_to=user_to_follow
+                    user_from=request.user, user_to=user_to_follow
                 )
                 create_action(request.user, "is following", user_to_follow)
             elif action == "unfollow":
                 Contact.objects.filter(
-                    user_from=request.user,
-                    user_to=user_to_follow
+                    user_from=request.user, user_to=user_to_follow
                 ).delete()
             else:
-                return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
-            
+                return JsonResponse(
+                    {"status": "error", "message": "Invalid action"}, status=400
+                )
+
             return JsonResponse({"status": "ok"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
-    
-    return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
+
+    return JsonResponse(
+        {"status": "error", "message": "Invalid request method"}, status=405
+    )

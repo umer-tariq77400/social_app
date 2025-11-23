@@ -30,7 +30,8 @@
                 </ul>
             {% endif %}
             <span class="user">
-                {% if user.is_authenticated %}
+            {% with authenticated=user.is_authenticated %}
+                {% if authenticated %}
                     Hello {{ request.user.firstname|default:request.user.username }}
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
@@ -39,6 +40,12 @@
                 {% else %}
                     <a href="{% url 'login' %}">Login</a>
                 {% endif %}
+                {% if authenticated and not request.user.profile.is_complete %}
+                    <div class="profile-warning" style="background:#777777;padding:8px;text-align:center;">
+                        Your profile is incomplete. <a href="{% url 'edit' %}?next={{ request.path }}">Complete it now</a>
+                    </div>
+                {% endif %}
+            {% endwith %}
             </span>
         </div>
         {% if messages %}
@@ -52,7 +59,8 @@
             </ul>
         {% endif %}
         <div id="content">
-            {% block content %}{% endblock content %}
+            {% block content %}
+            {% endblock content %}
         </div>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
         <script src="{% static 'js/csrf.js' %}"></script>
