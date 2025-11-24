@@ -31,7 +31,7 @@
           data-like-url="{% url 'images:like' %}"
           {% endblock %}>
         <header class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b-2 dark:border-blue-500/30">
-            <div class="container mx-auto px-4 sm:px-6 py-4">
+            <div class="container mx-auto px-4 sm:px-6">
                 <div class="flex items-center justify-between">
                     <!-- Logo and Brand -->
                     <a href="{% url 'dashboard' %}" class="flex items-center gap-3 group">
@@ -75,7 +75,7 @@
                     <div class="flex items-center gap-3">
                         {% if user.is_authenticated %}
                             <div class="relative" x-data="{ open: false }">
-                                <button @click="open = !open" class="focus:outline-none group">
+                                <button @click="open = !open" class="focus:outline-none group mt-2">
                                     {% include "includes/avatar.html" with user=request.user classes="w-10 h-10 cursor-pointer border-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg" icon_classes="text-lg" %}
                                 </button>
                                 <div @click.away="open = false"
