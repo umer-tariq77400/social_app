@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.utils.text import slugify
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
 
 
 class Image(models.Model):
@@ -9,7 +9,7 @@ class Image(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     slug = models.SlugField(max_length=255, blank=True)
-    url = models.URLField(max_length=2000)
+    url = models.URLField(max_length=2000, blank=True)
     image = models.ImageField(upload_to="images/%Y/%m/%d/")
     created = models.DateTimeField(auto_now_add=True)
     users_like = models.ManyToManyField(

@@ -4,7 +4,22 @@
 
 {% block content %}
 <div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 font-display">
-  <main class="w-full max-w-2xl">
+  <main class="w-full max-w-2xl" 
+        x-data="{ 
+            previewUrl: '{{ request.GET.url|default:'' }}',
+            urlInput: '{{ request.GET.url|default:'' }}',
+            previewFile(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.previewUrl = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }"
+        x-init="$watch('urlInput', value => { if (value && !$refs.fileInput.files.length) { previewUrl = value; } })">
     <div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-background-dark shadow-sm overflow-hidden">
       <header class="flex items-center justify-between border-b border-solid border-border-light dark:border-border-dark p-4 bg-gray-50 dark:bg-gray-800/50">
         <div class="flex items-center gap-4">
@@ -16,11 +31,19 @@
       </header>
 
       <div class="p-6">
-          <div class="mb-6 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
-            <img src="{{ request.GET.url }}" alt="{{ request.GET.title }}" class="w-full h-64 object-contain bg-gray-100 dark:bg-gray-900">
+          <div class="mb-6 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm bg-gray-100 dark:bg-gray-900 h-64 flex items-center justify-center">
+            <template x-if="previewUrl">
+                <img :src="previewUrl" alt="Preview" class="w-full h-full object-contain">
+            </template>
+            <template x-if="!previewUrl">
+                <div class="text-gray-400 flex flex-col items-center">
+                    <span class="material-symbols-outlined text-4xl mb-2">image</span>
+                    <span>No image selected</span>
+                </div>
+            </template>
           </div>
 
-          <form method="post" class="flex flex-col gap-6">
+          <form method="post" enctype="multipart/form-data" class="flex flex-col gap-6" id="image-form">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -47,6 +70,27 @@
                            class="w-full bg-transparent p-3 text-text-light-body dark:text-dark-body focus:outline-none placeholder-gray-400 dark:placeholder-gray-500 resize-none"
                            {% if field.field.required %}required{% endif %}
                            placeholder="{{ field.label }}">{{ field.value|default:'' }}</textarea>
+                    </div>
+                {% elif field.name == 'file' %}
+                    <div class="relative flex w-full items-stretch rounded-lg bg-background-light-alt dark:bg-background-dark-alt border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
+                        <input type="file"
+                            name="{{ field.name }}"
+                            id="{{ field.id_for_label }}"
+                            accept="image/*"
+                            @change="previewFile"
+                            x-ref="fileInput"
+                            class="w-full bg-transparent px-4 py-2 text-text-light-body dark:text-dark-body focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+                {% elif field.name == 'url' %}
+                    <div class="relative flex w-full items-stretch rounded-lg h-11 bg-background-light-alt dark:bg-background-dark-alt border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
+                        <input type="{{ field.field.widget.input_type }}"
+                            name="{{ field.name }}"
+                            id="{{ field.id_for_label }}"
+                            x-model="urlInput"
+                            value="{{ field.value|default:'' }}"
+                            class="w-full bg-transparent px-4 text-text-light-body dark:text-dark-body focus:outline-none placeholder-gray-400 dark:placeholder-gray-500"
+                            {% if field.field.required %}required{% endif %}
+                            placeholder="{{ field.label }}">
                     </div>
                 {% else %}
                     <div class="relative flex w-full items-stretch rounded-lg h-11 bg-background-light-alt dark:bg-background-dark-alt border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
@@ -79,7 +123,7 @@
             {% endfor %}
 
             <footer class="flex items-center justify-end gap-4 border-t border-solid border-border-light dark:border-border-dark pt-6 mt-2">
-                <a href="javascript:window.close();"
+                <a href="{% url 'images:list' %}"
                 class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 bg-gray-100 px-5 text-sm font-bold text-text-light dark:text-text-dark hover:bg-gray-200 transition-colors border border-border-light dark:border-border-dark"
                 >
                 Cancel
