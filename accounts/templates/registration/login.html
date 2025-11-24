@@ -36,6 +36,18 @@
                 </div>
                 <form method="post" action="{% url 'login' %}" class="space-y-6">
                     {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="rounded-lg border border-l-4 border-error bg-red-50 dark:bg-red-900/20 p-4 text-sm text-error dark:text-red-400">
+                        <div class="font-bold mb-2">Login Failed</div>
+                        <ul class="space-y-1">
+                          {% for error in form.non_field_errors %}
+                            <li>• {{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
                     <div class="space-y-2">
                         <label for="email"
                                class="text-sm font-medium text-text-light-headings dark:text-dark-headings">
@@ -44,7 +56,15 @@
                         <input id="email"
                                name="username"
                                placeholder="you@example.com"
-                               class="form-input w-full rounded-lg h-12 px-4 text-base bg-background-light-alt dark:bg-background-dark-alt border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-emerald-500 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-text-light-body dark:text-dark-body" />
+                               class="form-input w-full rounded-lg h-12 px-4 text-base bg-background-light-alt dark:bg-background-dark-alt border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-emerald-500 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-text-light-body dark:text-dark-body"
+                               value="{{ form.username.value|default:'' }}" />
+                        {% if form.username.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.username.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
@@ -60,6 +80,13 @@
                                type="password"
                                placeholder="••••••••"
                                class="form-input w-full rounded-lg h-12 px-4 text-base bg-background-light-alt dark:bg-background-dark-alt border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-emerald-500 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-text-light-body dark:text-dark-body" />
+                        {% if form.password.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.password.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                     <button type="submit"
                             class="flex w-full items-center justify-center rounded-lg h-12 bg-emerald-500 text-white text-base font-bold hover:bg-emerald-500/90">

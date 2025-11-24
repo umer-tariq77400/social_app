@@ -36,15 +36,32 @@
                                 </div>
                                 <form method="post" class="flex flex-col gap-4">
                                     {% csrf_token %}
+
+                                    {% if user_form.non_field_errors %}
+                                    <div class="rounded-lg border border-l-4 border-error bg-red-50 dark:bg-red-900/20 p-4 text-sm text-error dark:text-red-400">
+                                        <div class="font-bold mb-2">Registration Failed</div>
+                                        <ul class="space-y-1">
+                                          {% for error in user_form.non_field_errors %}
+                                            <li>• {{ error }}</li>
+                                          {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+
                                     {% for field in user_form %}
                                     <label class="flex flex-col min-w-40 h-auto">
                                         <span class="text-sm font-medium text-text-light-body dark:text-dark-body mb-1.5">{{ field.label }}</span>
                                         <div class="flex w-full flex-1 items-stretch rounded-lg h-11 bg-background-light-alt dark:bg-background-dark-alt border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
                                             {{ field }}
                                         </div>
+                                        {% if field.help_text %}
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text|safe }}</p>
+                                        {% endif %}
                                         {% if field.errors %}
                                             <div class="text-red-500 text-sm mt-1">
-                                                {{ field.errors }}
+                                                {% for error in field.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
                                             </div>
                                         {% endif %}
                                     </label>

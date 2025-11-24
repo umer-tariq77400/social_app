@@ -1,9 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Logout{% endblock title %}
+{% block title %}Logged Out{% endblock title %}
 
 {% block content %}
-<h1>Logged Out</h1>
-<p>You have been successfully logged out.</p>
-<a href="{% url 'login' %}">Login again</a>
+<div class="relative flex min-h-[calc(100vh-80px)] w-full flex-col items-center justify-center p-4 font-display bg-background-light dark:bg-background-dark">
+  <main class="w-full max-w-md text-center">
+    <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+        <span class="material-symbols-outlined text-4xl">logout</span>
+    </div>
+    <h1 class="text-3xl font-black tracking-tight text-text-light-headings dark:text-dark-headings sm:text-4xl">
+        Logged Out
+    </h1>
+    <p class="mt-4 text-base text-text-light-body dark:text-dark-body">
+        You have been successfully logged out of your account. We hope to see you again soon!
+    </p>
+    <div class="mt-8 flex justify-center">
+        <a href="{% url 'login' %}"
+           class="flex items-center justify-center rounded-lg h-11 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl">
+            Log In Again
+        </a>
+    </div>
+  </main>
+</div>
 {% endblock content %}
