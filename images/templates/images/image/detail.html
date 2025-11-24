@@ -4,76 +4,107 @@
 {% block title %}{{ image.title }}{% endblock title %}
 
 {% block content %}
-	<h1>{{ image.title }}</h1>
-	<a href="{{ image.url }}">
-		<img src="{{ image.image.url }}" alt="{{ image.title }}">
-	</a>
-	{% with total_likes=image.users_like.count users_like=image.users_like.all %}
-		<div class="image-info">
-			<div>
-				<span class="count">
-					<span class="total">{{ total_likes }}</span> like{{ total_likes|pluralize }}
-				</span>
-				<span class="count">
-					<span class="total">{{ total_views }}</span> view{{ total_views|pluralize }}
-				</span>
-				<a href="#" class="like button" data-id="{{ image.id }}" data-action="{% if user in users_like %}unlike{% else %}like{% endif %}">
-					{% if user in users_like %}
-						Unlike
-					{% else %}
-						Like
-					{% endif %}
-				</a>
-			</div>
-			{{ image.description|linebreaks }}
-		</div>
-		<div class="image-likes">
-			{% for user in users_like %}
-				<div>
-					{% if user.profile.photo %}
-						<img src="{% thumbnail user.profile.photo "60x60" crop="center" quality=50 %}" alt="{{ user.username }}" class="like-user-photo">
-					{% endif %}
-					<p>{{ user.first_name }}</p>
-				</div>
-			{% empty %}
-				<span>No likes yet.</span>
-			{% endfor %}
-		</div>
-	{% endwith %}
+<main class="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-white dark:bg-background-dark-alt rounded-xl shadow-lg overflow-hidden flex flex-col lg:flex-row">
+      <!-- Image Section -->
+      <div class="w-full lg:w-3/5">
+        <a href="{{ image.url }}" target="_blank" rel="noopener noreferrer">
+          <img
+            alt="{{ image.title }}"
+            class="w-full h-full object-cover"
+            src="{{ image.image.url }}"
+          />
+        </a>
+      </div>
+      
+      <!-- Details Section -->
+      <div class="w-full lg:w-2/5 p-6 sm:p-8 flex flex-col">
+        <!-- User Info and Follow Button -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            {% include "includes/avatar.html" with user=image.user classes="w-10 h-10" icon_classes="text-gray-600 dark:text-gray-300" %}
+            <div>
+              <p class="font-bold text-text-light-headings dark:text-dark-headings">
+                {{ image.user.get_full_name|default:image.user.username }}
+              </p>
+              <p class="text-xs text-text-light-body dark:text-dark-body">
+                Posted {{ image.created|timesince }} ago
+              </p>
+            </div>
+          </div>
+          {% if request.user != image.user %}
+            <a 
+              href="{% url 'user_detail' username=image.user.username %}"
+              class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-9 px-4 bg-blue-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-blue-500 transition-colors"
+            >
+              <span class="truncate">View Profile</span>
+            </a>
+          {% endif %}
+        </div>
+        
+        <!-- Title and Description -->
+        <div class="flex-grow">
+          <h1 class="text-2xl sm:text-3xl font-bold text-text-light-headings dark:text-dark-headings mb-3">
+            {{ image.title }}
+          </h1>
+          {% if image.description %}
+            <p class="text-text-light-body dark:text-dark-body text-sm leading-relaxed">
+              {{ image.description|linebreaks }}
+            </p>
+          {% endif %}
+        </div>
+        
+        <!-- Interaction Section -->
+        {% with total_likes=image.users_like.count users_like=image.users_like.all %}
+        <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6"
+             x-data="imageLike('{{ image.id }}', '{% if request.user in users_like %}unlike{% else %}like{% endif %}', {{ total_likes }})">
+          <div class="flex items-center justify-between text-text-light-body dark:text-dark-body">
+            <div class="flex items-center gap-5">
+              <button 
+                @click.prevent="toggleLike()"
+                class="flex items-center gap-1.5 hover:text-red-500 transition-colors"
+                :class="action === 'unlike' ? 'text-red-500' : ''"
+              >
+                <span class="material-symbols-outlined" x-text="action === 'unlike' ? 'favorite' : 'favorite_border'">
+                  {% if request.user in users_like %}favorite{% else %}favorite_border{% endif %}
+                </span>
+                <span class="text-sm font-medium" x-text="likes">{{ total_likes }}</span>
+              </button>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined">visibility</span>
+                <span class="text-sm font-medium">{{ total_views }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Users who liked -->
+          {% if users_like %}
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p class="text-xs text-text-light-body dark:text-dark-body mb-2">Liked by</p>
+              <div class="flex flex-wrap gap-2">
+                {% for user in users_like|slice:":10" %}
+                  <a href="{% url 'user_detail' username=user.username %}" class="group" title="{{ user.get_full_name|default:user.username }}">
+                    {% include "includes/avatar.html" with user=user classes="w-8 h-8 border-2 border-transparent group-hover:border-blue-600 transition-colors" icon_classes="text-xs text-gray-600 dark:text-gray-300" %}
+                  </a>
+                {% endfor %}
+                {% if total_likes > 10 %}
+                  <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <span class="text-xs font-medium text-text-light-body dark:text-dark-body">+{{ total_likes|add:"-10" }}</span>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="{% static 'js/likes.js' %}"></script>
 {% endblock content %}
 
 {% block domready %}
-  const url = "{% url 'images:like' %}";
-	var options = {
-		method: "POST",
-		headers: {
-			"X-CSRFToken": csrftoken,
-		},
-		"mode": "same-origin",
-	}
-	document.querySelector("a.like")
-	  .addEventListener("click", function(e){
-			e.preventDefault();
-			var likeButton = this;
-			// AJAX request to like/unlike the image
-			var formData = new FormData();
-			var previousAction = likeButton.getAttribute("data-action");
-			formData.append("id", likeButton.getAttribute("data-id"));
-			formData.append("action", previousAction);
-			options.body = formData;
-			fetch(url, options)
-				.then(response => response.json())
-				.then(data => {
-					if (data.status == "ok") {
-						// Change the like/unlike button state
-						var action = previousAction == "like" ? "unlike" : "like";
-						likeButton.setAttribute("data-action", action);
-						likeButton.textContent = action.charAt(0).toUpperCase() + action.slice(1);
-						// Update the total likes count
-						var totalLikesElem = document.querySelector("span.total");
-						var totalLikes = parseInt(totalLikesElem.textContent);
-						totalLikesElem.textContent = previousAction == "like" ? totalLikes + 1 : totalLikes - 1;
-					}
-				})
-		})
 {% endblock domready %}

@@ -1,3 +1,5 @@
+// JavaScript to handle message dismissal
+
 function fadeOutMessage(msg) {
     msg.classList.add('fade-out');
     setTimeout(function() {

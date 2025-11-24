@@ -5,163 +5,91 @@
 {% block title %}{{ user.get_full_name|default:user.username }}{% endblock title %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'accounts/css/user_detail.css' %}">
-<link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
+<main class="w-full flex-grow">
+    <div class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-6xl mx-auto">
+        <!-- Profile Header - Centered -->
+        <div class="flex flex-col items-center text-center mb-12"
+             x-data="followLogic({% if user in request.user.following.all %}true{% else %}false{% endif %}, '{{ user.id }}', {{ user.rel_to_set.count }})">
+            <!-- Profile Photo -->
+            {% include "includes/avatar.html" with user=user classes="size-24 sm:size-32 rounded-full object-cover ring-4 ring-white dark:ring-background-dark shadow-lg" icon_classes="text-5xl" %}
 
-<div class="profile-header">
-    <div class="profile-header-content">
-        {% if user.profile.photo %}
-            <img src="{% thumbnail user.profile.photo 120x120 crop='center' quality=95 %}" 
-                 class="profile-photo"
-                 width="120" height="120"
-                 alt="{{ user.username }}">
-        {% else %}
-            <div class="profile-avatar-placeholder">
-                <i class="fas fa-user"></i>
+            <!-- User Name & Username -->
+            <h1 class="mt-4 text-2xl sm:text-3xl font-bold text-text-light-headings dark:text-dark-headings tracking-tight">
+                {{ user.get_full_name|default:user.username }}
+            </h1>
+            <p class="text-base text-text-light-body dark:text-dark-body">@{{ user.username }}</p>
+
+            <!-- Stats - Followers & Following -->
+            <div class="mt-4 flex items-center gap-6 text-sm text-text-light-headings dark:text-dark-headings">
+                <div class="text-center">
+                    <p class="font-bold text-lg" x-text="followersCount">{{ user.rel_to_set.count }}</p>
+                    <p class="text-xs text-text-light-body dark:text-dark-body">Followers</p>
+                </div>
+                <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+                <div class="text-center">
+                    <p class="font-bold text-lg">{{ user.rel_from_set.count }}</p>
+                    <p class="text-xs text-text-light-body dark:text-dark-body">Following</p>
+                </div>
             </div>
-        {% endif %}
-        <div>
-            <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
-            <p class="profile-username">@{{ user.username }}</p>
-        </div>
-    </div>
-</div>
 
-<div class="profile-container">
-    <!-- Left Column - Profile Info -->
-    <div class="profile-card">
-        <div class="profile-body">
-            <div class="profile-meta">
-                {% if user.email %}
-                    <div class="meta-item">
-                        <i class="fas fa-envelope"></i>
-                        <span>{{ user.email }}</span>
+            <!-- Follow Button -->
+            {% if request.user.is_authenticated and request.user != user %}
+                <div class="mt-6">
+                    <button 
+                        @click="toggleFollow()"
+                        :disabled="loading"
+                        :class="following 
+                            ? 'bg-gray-100 dark:bg-gray-800 !text-gray-700 dark:!text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700' 
+                            : 'bg-blue-600 hover:bg-blue-700 !text-white shadow-md hover:shadow-lg'"
+                        class="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-200">
+                        <span x-text="following ? 'Following' : 'Follow'"></span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <!-- Additional Info (Email, DOB, Join Date) -->
+            {% if user.email or user.profile.date_of_birth or user.date_joined %}
+                <div class="mt-6 flex flex-wrap justify-center gap-4 text-sm text-text-light-body dark:text-dark-body">
+                    {% if user.email %}
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">email</span>
+                            <span>{{ user.email }}</span>
+                        </div>
+                    {% endif %}
+                    {% if user.profile.date_of_birth %}
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">cake</span>
+                            <span>{{ user.profile.date_of_birth|date:"M d, Y" }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">event</span>
+                        <span>Joined {{ user.date_joined|date:"M Y" }}</span>
                     </div>
-                {% endif %}
-
-                {% if user.profile.date_of_birth %}
-                    <div class="meta-item">
-                        <i class="fas fa-birthday-cake"></i>
-                        <span>{{ user.profile.date_of_birth|date:"M d, Y" }}</span>
-                    </div>
-                {% endif %}
-
-                <div class="meta-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Joined {{ user.date_joined|date:"M Y" }}</span>
                 </div>
-            </div>
-
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <div class="stat-number">{{ user.rel_from_set.count }}</div>
-                    <div class="stat-label">Following</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">{{ user.rel_to_set.count }}</div>
-                    <div class="stat-label">Followers</div>
-                </div>
-            </div>
-
-            <!-- Follow/Unfollow Button -->
-            {% if request.user != user %}
-                {% if user in request.user.following.all %}
-                    <a href="#" class="follow follow-btn unfollow" data-id="{{ user.id }}" data-action="unfollow">
-                        <i class="fas fa-user-check"></i> Following
-                    </a>
-                {% else %}
-                    <a href="#" class="follow follow-btn" data-id="{{ user.id }}" data-action="follow">
-                        <i class="fas fa-user-plus"></i> Follow
-                    </a>
-                {% endif %}
             {% endif %}
         </div>
-    </div>
 
-    <!-- Right Column - Stats and Followers -->
-    <div class="right-section">
-        <!-- Followers Section -->
-        {% if user.rel_to_set.all %}
-            <div class="section-card">
-                <div class="section-title">
-                    <i class="fas fa-users"></i>
-                    <span>Followers (<span class="followers-count-display">{{ user.rel_to_set.count }}</span>)</span>
+        <!-- Image Gallery - Masonry Layout -->
+        {% if user.image_set.count %}
+            <div class="mt-12">
+                <h2 class="text-xl font-bold text-text-light-headings dark:text-dark-headings mb-6">
+                    Gallery ({{ user.image_set.count }})
+                </h2>
+                <div id="image-list" class="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4 space-y-4">
+                    {% include "images/image/list_images.html" %}
                 </div>
-                <div class="following-grid">
-                    {% for contact in user.rel_to_set.all|slice:":6" %}
-                        <div class="following-item">
-                            <a href="{% url 'user_detail' contact.user_from.username %}">
-                                {% if contact.user_from.profile.photo %}
-                                    <img src="{% thumbnail contact.user_from.profile.photo 80x80 crop='center' quality=95 %}" 
-                                         width="80" height="80"
-                                         alt="{{ contact.user_from.username }}">
-                                {% else %}
-                                    <div class="follower-avatar-placeholder">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                {% endif %}
-                                <p class="username">{{ contact.user_from.username }}</p>
-                                <p class="email">{{ contact.user_from.email|truncatechars:15 }}</p>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% if user.rel_to_set.count > 6 %}
-                    <div class="more-followers">
-                        <small>+{{ user.rel_to_set.count|add:"-6" }} more followers</small>
-                    </div>
-                {% endif %}
+            </div>
+        {% else %}
+            <div class="mt-12 text-center py-16">
+                <span class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600">image</span>
+                <p class="mt-4 text-lg text-text-light-body dark:text-dark-body">No images uploaded yet</p>
             </div>
         {% endif %}
-
-        <!-- Quick Stats Card -->
-        <div class="section-card">
-            <div class="section-title">
-                <i class="fas fa-chart-pie"></i>
-                <span>Quick Stats</span>
-            </div>
-            <div class="quick-stats-grid">
-                <div class="quick-stat-box">
-                    <div class="quick-stat-number">{{ user.image_set.count|default:0 }}</div>
-                    <div class="quick-stat-label">Images Uploaded</div>
-                </div>
-                <div class="quick-stat-box">
-                    <div class="quick-stat-number">{{ user.images_liked.count|default:0 }}</div>
-                    <div class="quick-stat-label">Likes Received</div>
-                </div>
-            </div>
-        </div>
     </div>
-</div>
-
-<!-- Images Section - Full Width -->
-{% if user.image_set.all %}
-    <div class="section-card">
-        <div class="section-title">
-            <i class="fas fa-images"></i>
-            <span>Gallery ({{ user.image_set.count }})</span>
-        </div>
-        <div id="image-list">
-            {% include "images/image/list_images.html" with images=user.image_set.all %}
-        </div>
-    </div>
-{% else %}
-    <div class="section-card">
-        <div class="section-title">
-            <i class="fas fa-images"></i>
-            <span>Gallery</span>
-        </div>
-        <div class="empty-state">
-            <i class="fas fa-image"></i>
-            <p>No images uploaded yet</p>
-        </div>
-    </div>
-{% endif %}
+</main>
 
 <script src="{% static 'accounts/js/follow.js' %}"></script>
-
-{% endblock content %}
-
-{% block domready %}
 <script src="{% static 'js/infinite_scroll.js' %}"></script>
-{% endblock domready %}
+<script src="{% static 'js/likes.js' %}"></script>
+{% endblock content %}

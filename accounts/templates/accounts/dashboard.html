@@ -1,50 +1,114 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}
-    Dashboard
-{% endblock title %}
+{% load thumbnail %}
+
+{% block description %}Dashboard of the logged in user{% endblock description %}
+{% block keywords %}dashboard, user, profile{% endblock keywords %}
+{% block title %}Dashboard{% endblock title %}
+
 {% block content %}
-    <h1>Dashboard</h1>
-    {% with total_images_created=request.user.imagemodel_set.count %}
-        <p>Welcome to your Dashboard. You have bookmarked {{ total_images_created }} images.</p>
-    {% endwith %}
-    <div class="bookmarklet-section">
-        <p>Drag the following bookmarklet to your bookmarks bar to bookmark images from other websites:</p>
-        <div class="bookmarklet-button">
-            <a href="{{ bookmarklet_code }}" class="bookmarklet-link">📌 Bookmark Images</a>
+<div class="container mx-auto p-6 lg:p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-8">
+            <h1 class="font-display text-5xl italic text-text-light-headings dark:text-text-dark-headings">Dashboard</h1>
+            
+            <!-- Profile Card -->
+            <div class="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-xl flex items-center space-x-8">
+                {% include "includes/avatar.html" with user=request.user classes="w-32 h-32 border-4 border-blue-400 dark:border-blue-400" icon_classes="text-6xl" %}
+                <div>
+                    <h2 class="text-3xl font-bold text-text-light-headings dark:text-text-dark-headings">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                    <p class="text-lg text-text-light-body dark:text-text-dark-body">@{{ request.user.username }}</p>
+                    {% if request.user.profile.date_of_birth %}
+                        <p class="text-base text-text-light-body dark:text-text-dark-body mt-1">Date of Birth: {{ request.user.profile.date_of_birth }}</p>
+                    {% endif %}
+                    <div class="flex space-x-6 mt-4 text-lg text-text-light-headings dark:text-text-dark-body">
+                        <span><span class="font-bold">{{ request.user.followers.count }}</span> Followers</span>
+                        <span><span class="font-bold">{{ request.user.following.count }}</span> Followings</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posted Images -->
+            <div>
+                <h2 class="font-display text-3xl italic text-text-light-headings dark:text-text-dark-headings mb-4">My Posted Images</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {% for image in user_images %}
+                        <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden">
+                            <a href="{{ image.get_absolute_url }}">
+                                <img alt="{{ image.title }}" class="w-full h-48 object-cover" src="{{ image.image.url }}"/>
+                            </a>
+                            <div class="p-4 space-y-2">
+                                <div class="flex items-center justify-between text-sm text-text-light-body dark:text-text-dark-body">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex items-center">
+                                            <span class="material-symbols-outlined text-blue-500 mr-2 text-xl">visibility</span>
+                                            {{ image.views|default:0 }} views
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="material-symbols-outlined text-red-500 mr-2 text-xl">favorite</span>
+                                            {{ image.total_likes }} likes
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-text-light-body dark:text-text-dark-body">
+                                        {{ image.created|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-text-light-body dark:text-text-dark-body col-span-2">No images posted yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-24">
+                <h2 class="font-display text-3xl italic text-text-light-headings dark:text-text-dark-headings mb-4">What's happening</h2>
+                <div class="relative space-y-8 pl-8 border-l-2 border-slate-300 dark:border-slate-600">
+                    {% for action in actions %}
+                        <div class="relative">
+                            <div class="absolute -left-12 top-0 flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full text-white z-10 ring-4 ring-white dark:ring-gray-800">
+                                <span class="material-symbols-outlined text-sm">
+                                    {% if action.verb == 'likes' %}thumb_up
+                                    {% elif action.verb == 'is following' %}person_add
+                                    {% else %}star{% endif %}
+                                </span>
+                            </div>
+                            <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-md">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    {% include "includes/avatar.html" with user=action.user classes="w-10 h-10" icon_classes="text-sm" %}
+                                    
+                                    {% if action.target %}
+                                        {% if action.target.image %}
+                                            <a href="{{ action.target.get_absolute_url }}">
+                                                <img alt="{{ action.target.title }}" class="w-10 h-10 rounded-md object-cover" src="{{ action.target.image.url }}"/>
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ action.target.get_absolute_url }}">
+                                                {% include "includes/avatar.html" with user=action.target classes="w-10 h-10" icon_classes="text-sm" %}
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                <p class="text-sm text-text-light-body dark:text-text-dark-body">{{ action.created|timesince }} ago</p>
+                                <p class="text-text-light-headings dark:text-text-dark-headings">
+                                    <a href="{{ action.user.get_absolute_url }}" class="font-bold hover:underline">{{ action.user.username }}</a>
+                                    {{ action.verb }}
+                                    {% if action.target %}
+                                        <a href="{{ action.target.get_absolute_url }}" class="font-semibold hover:underline">{{ action.target }}</a>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-text-light-body dark:text-text-dark-body">No recent activity.</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
-    <div class="dashboard-actions">
-        <p>
-            You can edit your profile information <a href="{% url 'edit' %}">here</a>.
-        </p>
-        <p>
-            You can change your password <a href="{% url 'password_change' %}">here</a>.
-        </p>
-    </div>
-    <div class="social-accounts">
-        <h2>Connected Social Accounts</h2>
-        {% if user.social_auth.all %}
-            <p>You have the following social accounts connected:</p>
-            <ul>
-                {% for social in user.social_auth.all %}
-                    <li>
-                        <strong>{{ social.provider|title }}</strong>
-                        <a href="{% url 'disconnect_social' social.provider %}"
-                           class="btn btn-small btn-danger">Disconnect</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No social accounts connected yet.</p>
-        {% endif %}
-    </div>
-    {% comment %} Showing recent actions by including the detail.html template for actions {% endcomment %}
-    <h2>What's happening</h2>
-    <div id="action-list">
-        {% for action in actions %}
-            {% include "actions/action/detail.html" %}
-        {% endfor %}
-    </div>
-    <link rel="stylesheet" href="{% static 'accounts/css/dashboard.css' %}">
+</div>
 {% endblock content %}

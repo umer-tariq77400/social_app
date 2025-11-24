@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ImageApp - Your Visual Universe, Reimagined{% endblock %}
+{% block extra_head %}
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+          rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+          rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+{% endblock %}
+{% block body_attributes %}class="font-display bg-background-light dark:bg-background-dark"{% endblock %}
+{% block content %}
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="flex flex-1 justify-center">
+                <div class="layout-content-container flex flex-col w-full max-w-6xl flex-1">
+                    <main class="w-full">
+                        <!-- HeroSection -->
+                        <section class="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8">
+                            <div class="mx-auto max-w-4xl text-center">
+                                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tighter text-text-light-headings dark:text-dark-headings">
+                                    Your Visual Universe, Reimagined
+                                </h1>
+                                <h2 class="mt-4 text-lg sm:text-xl text-text-light-body dark:text-dark-body max-w-2xl mx-auto">
+                                    Collect, edit, and share inspiration from across the web with the power of AI.
+                                </h2>
+                                <div class="mt-8 flex justify-center">
+                                    <a href="{% url 'register' %}"
+                                       class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90">
+                                        <span class="truncate">Get Started for Free</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="mt-12 sm:mt-16">
+                                <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl shadow-lg"
+                                     data-alt="A dynamic grid of captivating images showcasing the platform's content"
+                                     style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDdvdL9Y1BNs4g0ByaC3CINX8B2txuPNPj8qyoNIno9AgIxNXV_Oen0ZFf4t9glQvfLOgcPvJNm-s4gWO0BiGL7qi7h0MN0NSHfanuJ8r3yfJIYKafeVRItFAaS2pMHzX_xmfxclNt3mRjW3x5pOHSLgs7r06We8Soh2FFZ__NKqMi8oIKLFZjWyCcRHNhca7Bie1M0JQcuspBOHDqstLHohDzRHx9VZpqlYH9IbKIoC7PQ7u4p4lGQcvuSMap526Pc4ra5Dyp_KS8")'>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- FeatureSection -->
+                        <section class="py-16 sm:py-20 lg:py-24 bg-background-light-alt dark:bg-background-dark-alt">
+                            <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                                <div class="text-center">
+                                    <h2 class="text-3xl sm:text-4xl font-black leading-tight tracking-tighter text-text-light-headings dark:text-dark-headings">
+                                        Unleash Your Creativity
+                                    </h2>
+                                    <p class="mt-3 text-lg text-text-light-body dark:text-dark-body max-w-2xl mx-auto">
+                                        Discover a powerful suite of tools designed to help you gather, refine, and share your visual inspiration effortlessly.
+                                    </p>
+                                </div>
+                                <div class="mt-12 grid gap-10 sm:grid-cols-1 md:grid-cols-3">
+                                    <div class="flex flex-col gap-3 text-center items-center">
+                                        <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
+                                             data-alt="An animation showing a browser bookmarklet in action."
+                                             style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDdX1e0b4cT5tX5Wm8jzYgwkrQ4VWFT26MwSVqgzIyAc55HDisu9_1JQnT3RKJJ86l-gD_l2qU4Zo-EO-IqAIPLURKUZASlHMulExXqgInVzPnrhmmDCvuxqUGQuBGhauyKkb1Mt3ku4P5zwC3EfswSxnK68ucn_AptdGBxhwnU7l3R7XwwxZP_ayWDXCL8sNkPaRdeh02I8kDLnQpRxUm6L5944GMsd3NVeUGAK2O_ulTSlqZJvhTsLnfLENYlm-IeXOG68_iFs3o")'>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-bold text-text-light-headings dark:text-dark-headings">Save from Anywhere</h3>
+                                            <p class="mt-1 text-sm text-text-light-body dark:text-dark-body">
+                                                Use our simple browser bookmarklet to save images from any website with a single click.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-3 text-center items-center">
+                                        <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
+                                             data-alt="A before and after image slider showing AI editing capabilities."
+                                             style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8icOxN8kmarM5lctHxJBHSD15sZG7aFSjg-4bggB4h9KZUN1FEGlqNe2WidPEj6NVK-rX946jL5UbFhCmc67xBiNNL9-MRf95IZyWEB0NYiN3USqwnLk99U6xtSOeOkrjylS4iRhTKifa2FRyUgi1j_SXVQ0swnG9chhjLb2OEbEuF5Dc11A2p3VVzNsrw8vgfVJnuHVQfJDXkAR7Q19DUTAa8g22lEK6GOTXd9kshV_uPyzenYTZn7rD8tRqd_gtCjUD5R9h3G8")'>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-bold text-text-light-headings dark:text-dark-headings">Edit with AI Magic</h3>
+                                            <p class="mt-1 text-sm text-text-light-body dark:text-dark-body">
+                                                Transform your images with simple text prompts. From subtle adjustments to complete reimaginations.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-3 text-center items-center">
+                                        <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
+                                             data-alt="A mock-up of a social feed with popular images and user interactions."
+                                             style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCvPM25fHaSo7gNF2kuhzJtmIprtq56Do1iRto7IPVUMhl2EDGGXgLjXb-PH7jAYXKfyNGzzX5lFgphxLKwn23zU6k-973G_PhNxHjQdwLjPUhPMJpEra0FKy749vgvPpsiE2eE5NJeh362FwB2lDB1j-y5_iAwaZY8uOnFMiwpqE59HK2owbv3LMtKSp95GcBlt_KCqG4reKIURh2EaqIxA2onkvWZQiIcY1Om-YNN789WF_ltyi48WRkYNpmxwZ2ujpTNNlb_ieo")'>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-bold text-text-light-headings dark:text-dark-headings">Discover &amp; Connect</h3>
+                                            <p class="mt-1 text-sm text-text-light-body dark:text-dark-body">
+                                                Explore trending content, see what's popular on the image ranking page, and connect with other creators.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- CTASection -->
+                        <section class="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8">
+                            <div class="mx-auto max-w-2xl">
+                                <div class="text-center">
+                                    <h2 class="text-3xl sm:text-4xl font-black leading-tight tracking-tighter text-text-light-headings dark:text-dark-headings">
+                                        Join Thousands of Creators Today
+                                    </h2>
+                                    <p class="mt-3 text-lg text-text-light-body dark:text-dark-body">
+                                        Sign up now and start building your ultimate collection of visual inspiration.
+                                    </p>
+                                </div>
+                                <div class="mt-8 flex justify-center">
+                                    <form class="w-full max-w-md">
+                                        <label class="flex flex-col sm:flex-row min-w-40 h-auto sm:h-14">
+                                            <div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-background-light-alt dark:bg-background-dark-alt focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
+                                                <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-body dark:text-dark-body focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 py-3 sm:py-0 text-base font-normal leading-normal"
+                                                       placeholder="Enter your email address"
+                                                       type="email"
+                                                       value="" />
+                                                <div class="flex items-center justify-center p-1.5">
+                                                    <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-full px-5 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90">
+                                                        <span class="truncate">Sign Up Now</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </form>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                    <!-- Footer -->
+                    <footer class="flex flex-col gap-8 px-4 sm:px-6 lg:px-8 py-10 text-center border-t border-gray-200/80 dark:border-gray-700/80">
+                        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary text-sm font-normal leading-normal"
+                               href="#">About</a>
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary text-sm font-normal leading-normal"
+                               href="#">Contact</a>
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary text-sm font-normal leading-normal"
+                               href="#">Terms of Service</a>
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary text-sm font-normal leading-normal"
+                               href="#">Privacy Policy</a>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary"
+                               href="#">
+                                <svg class="feather feather-facebook"
+                                     fill="none"
+                                     height="24"
+                                     stroke="currentColor"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     stroke-width="2"
+                                     viewbox="0 0 24 24"
+                                     width="24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </a>
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary"
+                               href="#">
+                                <svg class="feather feather-twitter"
+                                     fill="none"
+                                     height="24"
+                                     stroke="currentColor"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     stroke-width="2"
+                                     viewbox="0 0 24 24"
+                                     width="24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                    </path>
+                                </svg>
+                            </a>
+                            <a class="text-text-light-body dark:text-dark-body hover:text-primary dark:hover:text-primary"
+                               href="#">
+                                <svg class="feather feather-instagram"
+                                     fill="none"
+                                     height="24"
+                                     stroke="currentColor"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     stroke-width="2"
+                                     viewbox="0 0 24 24"
+                                     width="24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <rect height="20" rx="5" ry="5" width="20" x="2" y="2"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                                </svg>
+                            </a>
+                        </div>
+                        <p class="text-sm text-text-light-body dark:text-dark-body">© 2024 ImageApp. All rights reserved.</p>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

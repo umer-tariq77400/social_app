@@ -1,13 +1,33 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}
-    Images Bookmarked
-{% endblock title %}
+
+{% block title %}Images Bookmarked{% endblock title %}
+
 {% block content %}
-    <h1>Images Bookmarked</h1>
-    <link rel="stylesheet" href="{% static 'images/css/image_card.css' %}">
-    <div id="image-list">{% include "images/image/list_images.html" %}</div>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl md:text-4xl font-display font-bold text-gray-900 tracking-tight">
+            Images Bookmarked
+        </h1>
+        <div class="flex gap-3">
+            <a href="{% url 'images:ranking' %}" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <span class="material-symbols-outlined text-yellow-500">emoji_events</span>
+                <span>Ranking</span>
+            </a>
+            <a href="{% url 'images:create' %}" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                <span class="material-symbols-outlined">add</span>
+                <span>Add Image</span>
+            </a>
+        </div>
+    </div>
+
+    <div id="image-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% include "images/image/list_images.html" %}
+    </div>
+</div>
+<script src="{% static 'js/infinite_scroll.js' %}"></script>
+<script src="{% static 'js/likes.js' %}"></script>
 {% endblock content %}
+
 {% block domready %}
-    <script src="{% static 'js/infinite_scroll.js' %}"></script>
 {% endblock domready %}

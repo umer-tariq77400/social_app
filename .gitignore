@@ -77,6 +77,3 @@ htmlcov/
 .tailwindcss/
 .tailwindcss.cache/
 node_modules/
-
-# Dev files and folder
-designs

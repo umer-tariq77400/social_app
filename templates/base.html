@@ -2,54 +2,145 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="{% block meta_description %}Bookmarks - Share and discover amazing images with the community{% endblock meta_description %}">
-        <meta name="keywords" content="{% block meta_keywords %}bookmarks, images, community{% endblock meta_keywords %}">
-        <meta name="author" content="{% block meta_author %}Bookmarks{% endblock meta_author %}">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description"
+              content="{% block meta_description %}{% endblock meta_description %}" />
+        <meta name="keywords"
+              content="{% block meta_keywords %}{% endblock meta_keywords %}" />
+        <meta name="author" content="Umer Tariq" />
         <title>
             {% block title %}
             {% endblock title %}
         </title>
-        <link rel="stylesheet" href="{% static 'css/base.css' %}">
-        <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
-        {% block extra_head %}{% endblock extra_head %}
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap"
+              rel="stylesheet" />
+        <link rel="stylesheet"
+              href="{% static "css/material-symbols-outlined.css" %}">
+        <script defer
+                src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.2/dist/cdn.min.js"></script>
+        <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet" />
+        {% block extra_head %}
+        {% endblock extra_head %}
     </head>
-    <body data-follow-url="{% url 'user_follow' %}">
-        <div id="header">
-            <span class="logo">Bookmarks</span>
-            {% if user.is_authenticated %}
-                <ul class="menu">
-                    <li {% if section == "dashboard" %}class="selected"{% endif %}>
-                        <a href="{% url 'dashboard' %}">Dashboard</a>
-                    </li>
-                    <li {% if section == "images" %}class="selected"{% endif %}>
-                        <a href="{% url "images:list" %}">Images</a>
-                    </li>
-                    <li {% if section == "people" %}class="selected"{% endif %}>
-                        <a href="{% url 'user_list' %}">People</a>
-                    </li>
-                </ul>
-            {% endif %}
-            <span class="user">
-            {% with authenticated=user.is_authenticated %}
-                {% if authenticated %}
-                    Hello {{ request.user.firstname|default:request.user.username }}
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit">Logout</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}">Login</a>
-                {% endif %}
-                {% if authenticated and not request.user.profile.is_complete %}
-                    <div class="profile-warning" style="background:#777777;padding:8px;text-align:center;">
-                        Your profile is incomplete. <a href="{% url 'edit' %}?next={{ request.path }}">Complete it now</a>
+    <body class="bg-background-light dark:bg-background-dark text-text-light-body dark:text-text-dark-body font-sans"
+          {% block body_attributes %}
+          data-follow-url="{% url 'user_follow' %}"
+          data-like-url="{% url 'images:like' %}"
+          {% endblock %}>
+        <header class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b-2 dark:border-blue-500/30">
+            <div class="container mx-auto px-4 sm:px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <!-- Logo and Brand -->
+                    <a href="{% url 'dashboard' %}" class="flex items-center gap-3 group">
+                        <div class="w-8 h-8 flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300 text-white">
+                            <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold bg-blue-600 bg-clip-text text-transparent">Bookmarks</h2>
+                    </a>
+                    <!-- Navigation Links -->
+                    {% if user.is_authenticated %}
+                        <nav class="hidden md:flex items-center space-x-2 lg:space-x-3 flex-1 justify-center">
+                            <a class="relative px-4 py-2.5 text-base font-semibold text-gray-700 dark:text-gray-200 rounded-lg transition-all duration-300 group {% if section == 'dashboard' %}bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400{% else %}hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400{% endif %}"
+                               href="{% url 'dashboard' %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xl">dashboard</span>
+                                    Dashboard
+                                </span>
+                                <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 {% if section == 'dashboard' %}scale-x-100{% endif %}"></span>
+                            </a>
+                            <a class="relative px-4 py-2.5 text-base font-semibold text-gray-700 dark:text-gray-200 rounded-lg transition-all duration-300 group {% if section == 'images' %}bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400{% else %}hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400{% endif %}"
+                               href="{% url 'images:list' %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xl">photo_library</span>
+                                    Images
+                                </span>
+                                <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 {% if section == 'images' %}scale-x-100{% endif %}"></span>
+                            </a>
+                            <a class="relative px-4 py-2.5 text-base font-semibold text-gray-700 dark:text-gray-200 rounded-lg transition-all duration-300 group {% if section == 'people' %}bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400{% else %}hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400{% endif %}"
+                               href="{% url 'user_list' %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xl">people</span>
+                                    People
+                                </span>
+                                <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 {% if section == 'people' %}scale-x-100{% endif %}"></span>
+                            </a>
+                        </nav>
+                    {% endif %}
+                    <!-- User Actions -->
+                    <div class="flex items-center gap-3">
+                        {% if user.is_authenticated %}
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" class="focus:outline-none group">
+                                    {% include "includes/avatar.html" with user=request.user classes="w-10 h-10 cursor-pointer border-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg" icon_classes="text-lg" %}
+                                </button>
+                                <div @click.away="open = false"
+                                     class="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-20 overflow-hidden"
+                                     x-show="open"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 transform scale-95"
+                                     x-transition:enter-end="opacity-100 transform scale-100"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 transform scale-100"
+                                     x-transition:leave-end="opacity-0 transform scale-95"
+                                     style="display: none">
+                                    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                            {{ request.user.get_full_name|default:request.user.username }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">@{{ request.user.username }}</p>
+                                    </div>
+                                    <a class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+                                       href="{% url 'edit' %}">
+                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                        Profile Edit
+                                    </a>
+                                    <a class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+                                       href="{% url 'password_change' %}">
+                                        <span class="material-symbols-outlined text-lg">lock</span>
+                                        Password Change
+                                    </a>
+                                    <a class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+                                       href="{% url 'disconnect_social' 'google-oauth2' %}">
+                                        <span class="material-symbols-outlined text-lg">link_off</span>
+                                        Disconnect Google
+                                    </a>
+                                    <form method="post"
+                                          action="{% url 'logout' %}"
+                                          class="block w-full border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-200">
+                                            <span class="material-symbols-outlined text-lg">logout</span>
+                                            Logout
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'login' %}"
+                               class="flex items-center justify-center px-5 py-2.5 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300">
+                                <span class="truncate">Log In</span>
+                            </a>
+                            <a href="{% url 'register' %}"
+                                class="flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white border-2 border-blue-600 dark:bg-blue-600 dark:text-white dark:border-blue-500 text-sm font-bold shadow hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800"
+                                aria-label="Sign up">
+                                 <span class="whitespace-nowrap font-semibold">Sign Up</span>
+                            </a>
+                        {% endif %}
                     </div>
-                {% endif %}
-            {% endwith %}
-            </span>
-        </div>
+                </div>
+            </div>
+        </header>
+        {% if user.is_authenticated and not request.user.profile.is_complete %}
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-center" role="alert">
+                <p>Your profile is incomplete. <a href="{% url 'edit' %}?next={{ request.path }}" class="font-bold underline">Complete it now</a></p>
+            </div>
+        {% endif %}
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
@@ -65,14 +156,13 @@
             {% endblock content %}
         </div>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-        <script src="{% static 'js/csrf.js' %}"></script>
-        <script>
-        const csrftoken = Cookies.get('csrftoken');
-        document.addEventListener('DOMContentLoaded', function() {
-            {% block domready %}
-            {% endblock domready %}
-        })
-        </script>
         <script src="{% static 'js/messages.js' %}"></script>
+        <script>
+            const csrftoken = Cookies.get('csrftoken');
+            document.addEventListener('DOMContentLoaded', function() {
+                {% block domready %}
+                {% endblock domready %}
+            })
+        </script>
     </body>
 </html>

@@ -5,73 +5,66 @@
 {% block title %}People{% endblock title %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'accounts/css/user_list.css' %}">
-
-<div class="people-header">
-    <h1><i class="fas fa-users"></i> People</h1>
-</div>
-
-{% if users %}
-    <div class="user-list">
-        {% for user in users %}
-            <div class="user-item">
-                <div class="user-info">
-                    {% if user.profile.photo %}
-                        <img src="{% thumbnail user.profile.photo 80x80 crop='center' quality=95 %}" alt="{{ user.username }}" height="80" width="80" class="user-photo">
-                    {% else %}
-                        <div class="user-photo" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user" style="color: #12c064; font-size: 32px;"></i>
-                        </div>
-                    {% endif %}
-
-                    <div class="user-details">
-                        <h2>
-                            <a href="{% url 'user_detail' user.username %}">
-                                {{ user.get_full_name|default:user.username }}
-                            </a>
-                        </h2>
-                        <p class="username">@{{ user.username }}</p>
-
-                        {% if user.profile.date_of_birth %}
-                            <p class="date-of-birth">
-                                <i class="fas fa-birthday-cake" style="color: #12c064;"></i> {{ user.profile.date_of_birth|date:"F j, Y" }}
-                            </p>
-                        {% endif %}
-
-                        <p class="follower-count">
-                            <i class="fas fa-users" style="color: #12c064;"></i> <strong>{{ user.followers.count }}</strong> followers
-                        </p>
-                    </div>
-                </div>
-
-                {% if request.user != user %}
-                    <div class="user-actions">
-                        {% if user in request.user.following.all %}
-                            <a href="#" class="follow btn btn-secondary" 
-                               data-id="{{ user.id }}" 
-                               data-action="unfollow">
-                                <i class="fas fa-user-check"></i> Following
-                            </a>
-                        {% else %}
-                            <a href="#" class="follow btn btn-primary" 
-                               data-id="{{ user.id }}" 
-                               data-action="follow">
-                                <i class="fas fa-user-plus"></i> Follow
-                            </a>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <p class="text-muted"><i class="fas fa-info-circle"></i> Your profile</p>
-                {% endif %}
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+  <div class="layout-container flex h-full grow flex-col">
+    <div class="flex flex-1 justify-center">
+      <div class="layout-content-container flex flex-col w-full max-w-6xl flex-1">
+        <main class="w-full flex-grow px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div class="w-full max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+              <h1 class="text-3xl sm:text-4xl font-black text-text-light-headings dark:text-dark-headings tracking-tighter">Discover People</h1>
+              <p class="mt-2 text-base text-text-light-body dark:text-dark-body">Follow creators to see their latest work in your feed.</p>
             </div>
-        {% endfor %}
+            
+            {% if users %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {% for user in users %}
+                <div class="flex flex-col items-center p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-background-light-alt dark:bg-background-dark-alt text-center transition-transform hover:-translate-y-1 duration-300"
+                     x-data="followLogic({% if user in request.user.following.all %}true{% else %}false{% endif %}, '{{ user.id }}')">
+                  <!-- User Image -->
+                  <a href="{% url 'user_detail' user.username %}">
+                    {% include "includes/avatar.html" with user=user classes="w-24 h-24 mb-4 border-2 border-gray-200 dark:border-gray-700" icon_classes="text-4xl text-gray-400" %}
+                  </a>
+                  
+                  <!-- Name and Handle -->
+                  <h3 class="font-bold text-lg text-text-light-headings dark:text-dark-headings mb-1">
+                    <a href="{% url 'user_detail' user.username %}" class="hover:text-blue-600 transition-colors">
+                        {{ user.get_full_name|default:user.username }}
+                    </a>
+                  </h3>
+                  <p class="text-sm text-text-light-body dark:text-dark-body mb-4">@{{ user.username }}</p>
+                  
+                  <!-- Follow Button -->
+                  {% if request.user != user %}
+                    <button 
+                        @click="toggleFollow()"
+                        :disabled="loading"
+                        :class="following 
+                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600' 
+                            : 'bg-blue-600 text-white hover:bg-blue-700'"
+                        class="flex w-full items-center justify-center rounded-lg h-10 px-4 text-sm font-bold transition-all duration-300">
+                        <span x-text="following ? 'Following' : 'Follow'"></span>
+                    </button>
+                  {% else %}
+                     <span class="flex w-full items-center justify-center h-10 px-4 text-sm font-medium cursor-default border border-transparent">
+                        You
+                     </span>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">search_off</span>
+                <p class="text-xl text-gray-500">No users found</p>
+            </div>
+            {% endif %}
+          </div>
+        </main>
+      </div>
     </div>
-{% else %}
-    <div class="empty-state">
-        <i class="fas fa-search"></i>
-        <p>No users found</p>
-    </div>
-{% endif %}
+  </div>
+</div>
 
 <script src="{% static 'accounts/js/follow.js' %}"></script>
 

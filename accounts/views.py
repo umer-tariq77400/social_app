@@ -1,10 +1,12 @@
 import os
 
+import redis
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from social_django.models import UserSocialAuth
 
@@ -13,6 +15,14 @@ from actions.utils import create_action
 
 from .forms import ProfileEditForm, UserEditForm, UserRegistrationForm
 from .models import Contact, Profile
+
+# Initialize Redis connection
+r = redis.Redis(
+    host=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
+    db=settings.REDIS_DB,
+    password=settings.REDIS_PASSWORD,
+)
 
 
 @login_required
@@ -60,6 +70,18 @@ def dashboard(request):
     else:
         # If the user follows no one, show an empty action list.
         actions = Action.objects.none()
+    
+    # Fetch view counts from Redis for user's images
+    user_images = request.user.image_set.all()[:6]
+    try:
+        for image in user_images:
+            views = r.get(f"image:{image.id}:views")
+            image.views = int(views) if views else 0
+    except Exception:
+        # Redis might not be available, default to 0 views for each image
+        for image in user_images:
+            image.views = 0
+    
     # Load bookmarklet code from file
     bookmarklet_file = os.path.join(
         settings.BASE_DIR, "images", "templates", "bookmarklet_launcher.js"
@@ -74,6 +96,7 @@ def dashboard(request):
             "section": "dashboard",
             "bookmarklet_code": bookmarklet_code,
             "actions": actions,
+            "user_images": user_images,
         },
     )
 
@@ -114,7 +137,6 @@ def register(request):
             new_user.save()
             # Create the user profile
             Profile.objects.create(user=new_user)
-            create_action(new_user, "has created an account")
             return render(
                 request, "accounts/register_done.html", {"new_user": new_user}
             )
@@ -137,8 +159,48 @@ def user_list(request):
 @login_required
 def user_detail(request, username):
     user = get_object_or_404(User, username=username, is_active=True)
+    
+    # Fetch view counts from Redis for user's images using pipeline for efficiency
+    user_images = user.image_set.prefetch_related("users_like").all()
+
+    # Pagination
+    paginator = Paginator(user_images, 8)
+    page = request.GET.get("page")
+    try:
+        images = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        images = paginator.page(1)
+    except EmptyPage:
+        if request.GET.get("images_only"):
+            # If images_only is True and page is out of range, return empty response
+            return HttpResponse("")
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        images = paginator.page(paginator.num_pages)
+
+    try:
+        pipeline = r.pipeline()
+        for image in images:
+            pipeline.get(f"image:{image.id}:views")
+        view_counts = pipeline.execute()
+        
+        # Attach view counts to image objects
+        for image, views in zip(images, view_counts):
+            image.views = int(views) if views else 0
+    except Exception:
+        # If Redis is unavailable, set all view counts to 0
+        for image in images:
+            image.views = 0
+    
+    if request.GET.get("images_only"):
+        return render(
+            request,
+            "images/image/list_images.html",
+            {"section": "people", "user": user, "images": images},
+        )
+
     return render(
-        request, "accounts/user/detail.html", {"section": "people", "user": user}
+        request, "accounts/user/detail.html", {"section": "people", "user": user, "images": images}
     )
 
 

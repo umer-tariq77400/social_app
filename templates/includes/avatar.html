@@ -1,0 +1,15 @@
+{% load thumbnail %}
+{% if user.profile.photo %}
+    {% thumbnail user.profile.photo "200x200" crop="center" quality=85 as im %}
+    <img
+        alt="{{ user.get_full_name|default:user.username }}"
+        class="{{ classes|default:'w-10 h-10' }} rounded-full object-cover {{ extra_classes }}"
+        src="{{ im.url }}"
+    />
+{% else %}
+    <div
+        class="{{ classes|default:'w-10 h-10' }} rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 {{ extra_classes }}"
+    >
+        <span class="material-symbols-outlined {{ icon_classes|default:'text-lg' }}">person</span>
+    </div>
+{% endif %}

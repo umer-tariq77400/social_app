@@ -1,12 +1,118 @@
 {% extends "base.html" %}
-{% block title %}Images ranking{% endblock title %}
+{% load thumbnail %}
+
+{% block title %}Trending Images - Image Ranking{% endblock title %}
+
 {% block content %}
-    <h1>Images ranking</h1>
-    <ol>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-wrap justify-between gap-3 mb-6">
+        <div class="flex min-w-72 flex-col gap-3">
+            <p class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] font-display">Trending Now</p>
+            <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">Discover the most popular images on the platform.</p>
+        </div>
+    </div>
+
+    <!-- Image Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {% for image in most_viewed %}
-            <li>
-                <a href="{{ image.get_absolute_url }}">{{ image.title }}</a>
-            </li>
+            {% with users_like=image.users_like.all %}
+            <div class="group relative aspect-[3/4] overflow-hidden rounded-xl"
+                 x-data="imageLike('{{ image.id }}', '{% if request.user in users_like %}unlike{% else %}like{% endif %}', {{ image.total_likes|default:0 }})">
+                <a href="{{ image.get_absolute_url }}" class="block h-full w-full">
+                    {% thumbnail image.image "500x500" crop="smart" quality=90 as im %}
+                        <img
+                            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            src="{{ im.url }}"
+                            alt="{{ image.title }}"
+                            width="{{ im.width }}"
+                            height="{{ im.height }}"
+                        />
+                </a>
+                
+                <!-- Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                
+                <!-- Ranking Badge -->
+                <div class="absolute top-2 left-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white text-sm font-bold backdrop-blur-sm">
+                    #{{ forloop.counter }}
+                </div>
+                
+                <!-- Hover Content -->
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
+                    <h3 class="font-bold text-base line-clamp-2">{{ image.title }}</h3>
+                    <div class="flex items-center gap-2 mt-2">
+                        {% if image.user.profile.photo %}
+                            <img
+                                class="size-6 rounded-full object-cover"
+                                src="{{ image.user.profile.photo.url }}"
+                                alt="{{ image.user.username }}"
+                                width="24"
+                                height="24"
+                            />
+                        {% else %}
+                            <div class="size-6 rounded-full bg-primary/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-xs text-primary">person</span>
+                            </div>
+                        {% endif %}
+                        <p class="text-xs font-medium">@{{ image.user.username }}</p>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="flex items-center gap-3 mt-2 text-xs">
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">favorite</span>
+                            <span x-text="likes">{{ image.total_likes|default:0 }}</span>
+                        </div>
+                        {% if image.views %}
+                            <div class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                <span>{{ image.views }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons (only show like if user is authenticated) -->
+                {% if request.user.is_authenticated %}
+                <div class="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                    <button 
+                        @click.prevent="toggleLike()"
+                        class="size-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-red-100 hover:text-red-500 transition-all duration-200"
+                        :class="action === 'unlike' ? '!bg-red-500 !text-white' : ''"
+                    >
+                        <span class="material-symbols-outlined text-lg" x-text="action === 'unlike' ? 'favorite' : 'favorite_border'">
+                            {% if request.user in users_like %}favorite{% else %}favorite_border{% endif %}
+                        </span>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            {% endwith %}
+        {% empty %}
+            <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+                <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4">
+                    <span class="material-symbols-outlined text-5xl text-gray-400">emoji_events</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">No trending images yet</h3>
+                <p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">Check back later to see the most popular images on the platform.</p>
+            </div>
         {% endfor %}
-    </ol>
+    </div>
+</div>
+
+<style>
+    /* Custom hover animations */
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
+    }
+    .group:hover .group-hover\:translate-y-0 {
+        transform: translateY(0);
+    }
+</style>
+
+<script src="{% static 'js/likes.js' %}"></script>
 {% endblock content %}
+
+{% block domready %}
+{% endblock domready %}

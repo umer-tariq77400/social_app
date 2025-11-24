@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     "easy_thumbnails",
     "actions",
     "tailwind",
-    "theme"
+    "theme",
+    "pages",
 ]
 
 TAILWIND_APP_NAME = "theme"

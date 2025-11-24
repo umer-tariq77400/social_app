@@ -60,6 +60,22 @@ def image_list(request):
         if images_only:
             return HttpResponse("")
         images = paginator.page(paginator.num_pages)
+    
+    # Fetch view counts from Redis using pipeline for efficiency
+    try:
+        pipeline = r.pipeline()
+        for image in images:
+            pipeline.get(f"image:{image.id}:views")
+        view_counts = pipeline.execute()
+        
+        # Attach view counts to image objects
+        for image, views in zip(images, view_counts):
+            image.views = int(views) if views else 0
+    except Exception:
+        # If Redis is unavailable, set all view counts to 0
+        for image in images:
+            image.views = 0
+    
     if images_only:
         return render(
             request,
@@ -102,6 +118,22 @@ def image_ranking(request):
     image_ranking_ids = [int(id) for id, score in image_ranking]
     most_viewed = list(Image.objects.filter(id__in=image_ranking_ids))
     most_viewed.sort(key=lambda x: image_ranking_ids.index(x.id))
+    
+    # Fetch view counts from Redis using pipeline for efficiency
+    try:
+        pipeline = r.pipeline()
+        for image in most_viewed:
+            pipeline.get(f"image:{image.id}:views")
+        view_counts = pipeline.execute()
+        
+        # Attach view counts to image objects
+        for image, views in zip(most_viewed, view_counts):
+            image.views = int(views) if views else 0
+    except Exception:
+        # If Redis is unavailable, set all view counts to 0
+        for image in most_viewed:
+            image.views = 0
+    
     return render(
         request,
         "images/image/ranking.html",
