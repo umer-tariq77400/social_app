@@ -31,7 +31,13 @@
 
             <!-- Posted Images -->
             <div>
-                <h2 class="font-display text-3xl italic text-text-light-headings dark:text-text-dark-headings mb-4">My Posted Images</h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-display text-3xl italic text-text-light-headings dark:text-text-dark-headings">My Posted Images</h2>
+                    <a href="{% url 'images:create' %}" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5">
+                        <span class="material-symbols-outlined text-lg">add_photo_alternate</span>
+                        <span>Add Image</span>
+                    </a>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {% for image in user_images %}
                         <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden">
@@ -65,8 +71,27 @@
 
         <!-- Right Column -->
         <div class="lg:col-span-1">
-            <div class="sticky top-24">
-                <h2 class="font-display text-3xl italic text-text-light-headings dark:text-text-dark-headings mb-4">What's happening</h2>
+            <div class="sticky top-24 space-y-8">
+                <!-- Bookmarklet Widget -->
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white transform transition-all hover:scale-[1.02] duration-300">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="material-symbols-outlined text-3xl bg-white/20 p-2 rounded-lg backdrop-blur-sm">bookmark_add</span>
+                        <h2 class="text-2xl font-bold font-display italic">Bookmarklet</h2>
+                    </div>
+                    <p class="mb-6 text-blue-100 text-sm leading-relaxed">
+                        Drag the button below to your bookmarks bar to save images from any website!
+                    </p>
+                    <a href="{{ bookmarklet_code }}" class="block w-full bg-white text-blue-600 font-bold text-center py-3 px-4 rounded-lg shadow-md hover:bg-blue-50 transition-colors duration-200 cursor-grab active:cursor-grabbing border-2 border-transparent hover:border-blue-200">
+                        Bookmark it!
+                    </a>
+                    <div class="mt-4 text-xs text-blue-200 flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-sm">info</span>
+                        <span>Drag & drop to browser bar</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="font-display text-3xl italic text-text-light-headings dark:text-text-dark-headings mb-4">What's happening</h2>
                 <div class="relative space-y-8 pl-8 border-l-2 border-slate-300 dark:border-slate-600">
                     {% for action in actions %}
                         <div class="relative">
@@ -106,6 +131,7 @@
                     {% empty %}
                         <p class="text-text-light-body dark:text-text-dark-body">No recent activity.</p>
                     {% endfor %}
+                </div>
                 </div>
             </div>
         </div>
