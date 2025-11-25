@@ -228,3 +228,16 @@ INTERNAL_IPS = [
 
 # Redis settings
 REDIS_URL = config("REDISCLOUD_URL", default="redis://localhost:6379/0")
+
+# HTTPS and Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_SECURITY_POLICY = {
+        "default-src": ("'self'",),
+        "script-src": ("'self'", "cdn.jsdelivr.net", "'unsafe-inline'"),
+        "style-src": ("'self'", "'unsafe-inline'"),
+        "img-src": ("'self'", "data:", "https:"),
+    }
