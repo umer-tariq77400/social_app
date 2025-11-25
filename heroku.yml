@@ -1,0 +1,9 @@
+build:
+  languages:
+    - python
+
+release:
+  command: python manage.py migrate --noinput && python manage.py collectstatic --noinput
+
+run:
+  web: gunicorn config.wsgi:application
