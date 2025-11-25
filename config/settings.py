@@ -223,7 +223,4 @@ INTERNAL_IPS = [
 ]
 
 # Redis settings
-REDIS_HOST = config("REDIS_HOST", default="")
-REDIS_PORT = config("REDIS_PORT", default=12848, cast=int)
-REDIS_DB = config("REDIS_DB", default=0, cast=int)
-REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
+REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")

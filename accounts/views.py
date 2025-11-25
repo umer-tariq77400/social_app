@@ -17,12 +17,7 @@ from .forms import ProfileEditForm, UserEditForm, UserRegistrationForm
 from .models import Contact, Profile
 
 # Initialize Redis connection
-r = redis.Redis(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=settings.REDIS_DB,
-    password=settings.REDIS_PASSWORD,
-)
+r = redis.from_url(settings.REDIS_URL)
 
 
 @login_required
