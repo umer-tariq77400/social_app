@@ -19,9 +19,8 @@ from django.urls import reverse_lazy
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/5.2/howto/deploFyment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-of7wq7ltkfop5=u7w%8x8)p)z4-z$&ptjlvt5gv6fl#79@u-mm")
@@ -195,10 +194,13 @@ if DEBUG:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 else:
-    AZURE_ACCOUNT_NAME = config("AZURE_ACCOUNT_NAME")
-    AZURE_ACCOUNT_KEY = config("AZURE_ACCOUNT_KEY")
-    AZURE_CONTAINER_NAME = config("AZURE_CONTAINER_NAME")
-    AZURE_BLOB_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER_NAME}/"
+    AZURE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", default="")
+    AZURE_ACCOUNT_KEY = config("AZURE_STORAGE_ACCOUNT_KEY", default="")
+    AZURE_CONTAINER_NAME = config("AZURE_STORAGE_CONTAINER_NAME", default="")
+    MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER_NAME}/"
+    
+    # Configure django-storages for Azure
+    DEFAULT_FILE_STORAGE = "storages.backends.azure_storage.AzureStorage"
 
 
 # Easy Thumbnails configuration
