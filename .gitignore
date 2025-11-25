@@ -23,6 +23,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Exception: Keep compiled Tailwind CSS
+!theme/static/css/dist/
+
 # Virtual Environment
 venv/
 ENV/
