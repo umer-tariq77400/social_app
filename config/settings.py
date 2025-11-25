@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import dj_database_url
 from decouple import config
 from django.urls import reverse_lazy
 
@@ -98,14 +99,11 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": config("DB_NAME", default=""),
-            "USER": config("DB_USER", default=""),
-            "PASSWORD": config("DB_PASSWORD", default=""),
-            "HOST": config("DB_HOST", default=""),
-            "PORT": config("DB_PORT", default=""),
-        }
+        "default": dj_database_url.parse(
+            config("DATABASE_URL"),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
 
 
@@ -223,4 +221,4 @@ INTERNAL_IPS = [
 ]
 
 # Redis settings
-REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
+REDIS_URL = config("REDISCLOUD_URL", default="redis://localhost:6379/0")
