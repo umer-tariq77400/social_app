@@ -77,3 +77,8 @@ htmlcov/
 .tailwindcss/
 .tailwindcss.cache/
 node_modules/
+
+# SSL/TLS Certificates (for local development only)
+*.crt
+*.key
+*.pem
