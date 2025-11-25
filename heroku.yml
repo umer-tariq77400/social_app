@@ -3,7 +3,7 @@ build:
     - python
 
 release:
-  command: python manage.py migrate --noinput && python manage.py collectstatic --noinput
+  command: python manage.py tailwind build && python manage.py migrate --noinput && python manage.py collectstatic --noinput
 
 run:
   web: gunicorn config.wsgi:application
