@@ -22,7 +22,7 @@ def image_create(request):
     with the logged-in user and redirects to the image detail page on success.
     """
     if request.method == "POST":
-        form = ImageCreateForm(request.POST)
+        form = ImageCreateForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             new_image = form.save(commit=False)
 
@@ -34,7 +34,8 @@ def image_create(request):
 
             return redirect(new_image.get_absolute_url())
     else:
-        form = ImageCreateForm(data=request.GET)
+        # Use 'initial' instead of 'data' to pre-fill form without triggering validation
+        form = ImageCreateForm(initial=request.GET)
 
     return render(
         request, "images/image/create.html", {"section": "images", "form": form}

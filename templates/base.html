@@ -31,7 +31,7 @@
           data-like-url="{% url 'images:like' %}"
           {% endblock body_attributes %}>
         <header class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b-2 dark:border-blue-500/30">
-            <div class="container mx-auto px-4 sm:px-6 py-4">
+            <div class="container mx-auto px-4 sm:px-6 py-2">
                 <div class="flex items-center justify-between">
                     <!-- Logo and Brand -->
                     <a href="{% url 'dashboard' %}" class="flex items-center gap-3 group">
@@ -75,7 +75,7 @@
                     <div class="flex items-center gap-3">
                         {% if user.is_authenticated %}
                             <div class="relative" x-data="{ open: false }">
-                                <button @click="open = !open" class="focus:outline-none group">
+                                <button @click="open = !open" class="focus:outline-none group mt-2">
                                     {% include "includes/avatar.html" with user=request.user classes="w-10 h-10 cursor-pointer border-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg" icon_classes="text-lg" %}
                                 </button>
                                 <div @click.away="open = false"
@@ -127,11 +127,11 @@
                             </div>
                         {% else %}
                             <a href="{% url 'login' %}"
-                               class="flex items-center justify-center px-5 py-2.5 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300">
+                               class="flex items-center justify-center px-5 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300">
                                 <span class="truncate">Log In</span>
                             </a>
                             <a href="{% url 'register' %}"
-                                class="flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white border-2 border-blue-600 dark:bg-blue-600 dark:text-white dark:border-blue-500 text-sm font-bold shadow hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800"
+                                class="flex items-center justify-center px-5 py-2 rounded-lg bg-blue-600 text-white border-2 border-blue-600 dark:bg-blue-600 dark:text-white dark:border-blue-500 text-sm font-bold shadow hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800"
                                 aria-label="Sign up">
                                  <span class="whitespace-nowrap font-semibold">Sign Up</span>
                             </a>

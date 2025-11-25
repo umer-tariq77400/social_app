@@ -1,17 +1,41 @@
-{% extends "base.html" %} 
-{% load static %}
-{% block title %}Disconnect Social Account{% endblock title %} {% block content %}
-<div class="disconnect-container">
-  <h1>Disconnect {{ backend|title }} Account</h1>
-  <p>Are you sure you want to disconnect your {{ backend|title }} account from your profile?</p>
-  <p><strong>Note:</strong> You will no longer be able to log in using {{ backend|title }}.</p>
+{% extends "base.html" %}
 
-  <form method="post" class="disconnect-form">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Yes, Disconnect {{ backend|title }}</button>
-    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
-  </form>
+{% block title %}Disconnect {{ backend|title }}{% endblock title %}
+
+{% block content %}
+<div class="relative flex min-h-[calc(100vh-80px)] w-full flex-col items-center justify-center p-4 font-display bg-background-light dark:bg-background-dark">
+  <main class="w-full max-w-lg text-center">
+    <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+        <span class="material-symbols-outlined text-4xl">link_off</span>
+    </div>
+    <h1 class="text-3xl font-black tracking-tight text-text-light-headings dark:text-dark-headings sm:text-4xl">
+        Disconnect {{ backend|title }}?
+    </h1>
+    <p class="mt-4 text-base text-text-light-body dark:text-dark-body">
+        Are you sure you want to disconnect your <strong>{{ backend|title }}</strong> account from your profile?
+    </p>
+
+    <div class="mt-6 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 p-4 text-sm border border-yellow-200 dark:border-yellow-800/50 text-left">
+        <div class="flex gap-3">
+            <span class="material-symbols-outlined flex-shrink-0 text-yellow-600 dark:text-yellow-400">warning</span>
+            <div>
+                <p class="font-bold mb-1">Important:</p>
+                <p>You will no longer be able to log in using {{ backend|title }}. Ensure you have another way to access your account (like a password) before proceeding.</p>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+        {% csrf_token %}
+        <a href="{% url 'dashboard' %}"
+           class="flex items-center justify-center rounded-lg h-11 px-6 bg-gray-100 text-text-light dark:text-text-dark font-bold hover:bg-gray-200 transition-all duration-300">
+            Cancel
+        </a>
+        <button type="submit"
+                class="flex items-center justify-center rounded-lg h-11 px-6 bg-red-600 hover:bg-red-700 text-white font-bold transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl">
+            Yes, Disconnect
+        </button>
+    </form>
+  </main>
 </div>
-
-<link rel="stylesheet" href="{% static 'accounts/css/disconnect_confirm.css' %}">
 {% endblock content %}
