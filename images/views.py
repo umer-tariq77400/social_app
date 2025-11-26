@@ -17,9 +17,8 @@ r = redis.from_url(settings.REDIS_URL)
 @login_required
 def image_create(request):
     """
-    Handle image creation. Accepts POST requests with image data and GET requests
-    with image URL parameters for bookmarklet submission. Saves the image associated
-    with the logged-in user and redirects to the image detail page on success.
+    Handle image creation via a form. On GET requests, display the form with
+    pre-filled data from GET parameters. On POST requests, validate and save
     """
     if request.method == "POST":
         form = ImageCreateForm(data=request.POST, files=request.FILES)
@@ -62,7 +61,7 @@ def image_list(request):
             return HttpResponse("")
         images = paginator.page(paginator.num_pages)
     
-    # Fetch view counts from Redis using pipeline for efficiency
+    # Fetch view counts from Redis using pipeline for efficiency.
     try:
         pipeline = r.pipeline()
         for image in images:

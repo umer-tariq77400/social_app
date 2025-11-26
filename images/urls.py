@@ -5,8 +5,8 @@ app_name = "images"
 
 urlpatterns = [
     path("create/", image_create, name="create"),
-    path("<int:id>/<slug:slug>/", image_detail, name="detail"),
-    path("like/", image_like, name="like"),
     path("", image_list, name="list"),
+    path("<int:id>/<slug:slug>/", image_detail, name="detail"),
     path("ranking/", image_ranking, name="ranking"),
+    path("like/", image_like, name="like"),
 ]

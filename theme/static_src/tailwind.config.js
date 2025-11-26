@@ -20,6 +20,15 @@ module.exports = {
       },
     },
     extend: {
+      keyframes: {
+        'fade-out': {
+          'from': { opacity: '1', transform: 'translateY(0)' },
+          'to': { opacity: '0', transform: 'translateY(-10px)' },
+        },
+      },
+      animation: {
+        'fade-out': 'fade-out 0.3s ease-out forwards',
+      },
       colors: {
         primary: {
             DEFAULT: "#10B981", // emerald-500

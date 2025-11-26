@@ -145,15 +145,18 @@
                 <p>Your profile is incomplete. <a href="{% url 'edit' %}?next={{ request.path }}" class="font-bold underline">Complete it now</a></p>
             </div>
         {% endif %}
+
         {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>
-                        {{ message|safe }}
-                        <a href="#" class="close">×</a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <div class="messages">
+                <ul class="space-y-0">
+                    {% for message in messages %}
+                        <li class="w-full px-3 py-4 text-center font-semibold transition-all duration-300 {% if message.tags %}{{ message.tags }}{% else %}bg-blue-500 text-white{% endif %}">
+                            {{ message|safe }}
+                            <a href="#" class="close ml-4 hover:opacity-70 transition-opacity" aria-label="Close message">×</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endif %}
         <div id="content">
             {% block content %}

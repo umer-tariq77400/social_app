@@ -76,7 +76,7 @@
                 <h2 class="text-xl font-bold text-text-light-headings dark:text-dark-headings mb-6">
                     Gallery ({{ user.image_set.count }})
                 </h2>
-                <div id="image-list" class="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4 space-y-4">
+                <div id="image-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {% include "images/image/list_images.html" %}
                 </div>
             </div>

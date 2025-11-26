@@ -1,7 +1,7 @@
 // JavaScript to handle message dismissal
 
 function fadeOutMessage(msg) {
-    msg.classList.add('fade-out');
+    msg.classList.add('animate-fade-out');
     setTimeout(function() {
         msg.remove();
     }, 300); // Match CSS transition duration

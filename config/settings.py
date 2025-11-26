@@ -14,6 +14,7 @@ from pathlib import Path
 
 import dj_database_url
 from decouple import config
+from django.contrib.messages import constants as message_constants
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -228,6 +229,15 @@ INTERNAL_IPS = [
 
 # Redis settings
 REDIS_URL = config("REDISCLOUD_URL", default="redis://localhost:6379/0")
+
+# Django Messages - Tailwind styling
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'bg-gray-600 text-white',
+    message_constants.INFO: 'bg-blue-600 text-white',
+    message_constants.SUCCESS: 'bg-emerald-600 text-white',
+    message_constants.WARNING: 'bg-yellow-500 text-gray-900',
+    message_constants.ERROR: 'bg-red-600 text-white',
+}
 
 # HTTPS and Security settings for production
 if not DEBUG:

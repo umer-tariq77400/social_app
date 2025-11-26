@@ -17,7 +17,20 @@
         </div>
       </header>
 
-      <form method="post" enctype="multipart/form-data" class="flex flex-col gap-6 p-6">
+      <form method="post" enctype="multipart/form-data" class="flex flex-col gap-6 p-6" 
+            x-data="{ 
+                previewUrl: document.getElementById('id_photo')?.dataset.currentUrl || '',
+                previewFile(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.previewUrl = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }">
         {% csrf_token %}
 
         {% if user_form.non_field_errors or profile_form.non_field_errors %}
@@ -85,18 +98,28 @@
                             placeholder="{{ field.label }}">
                     </div>
                 {% elif field.name == 'photo' %}
-                    <div class="mt-2 flex items-center gap-x-3">
-                        {% if field.value %}
-                            <img class="h-12 w-12 rounded-full object-cover" src="{{ field.value.url }}" alt="Current profile photo">
-                        {% else %}
-                            <span class="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
-                                <span class="material-symbols-outlined">person</span>
-                            </span>
-                        {% endif %}
-                        <input type="file"
-                               name="{{ field.name }}"
-                               id="{{ field.id_for_label }}"
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                    <div class="mt-4 space-y-4">
+                        <!-- Circular Preview -->
+                        <div class="flex justify-center">
+                            <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-blue-200 dark:border-blue-800 shadow-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                                <template x-if="previewUrl">
+                                    <img :src="previewUrl" alt="Preview" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!previewUrl">
+                                    <span class="material-symbols-outlined text-5xl text-gray-400">account_circle</span>
+                                </template>
+                            </div>
+                        </div>
+                        <!-- File Input -->
+                        <div class="relative flex w-full items-stretch rounded-lg bg-background-light-alt dark:bg-background-dark-alt border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
+                            <input type="file"
+                                   name="{{ field.name }}"
+                                   id="{{ field.id_for_label }}"
+                                   accept="image/*"
+                                   @change="previewFile"
+                                   data-current-url="{% if field.value %}{{ field.value.url }}{% endif %}"
+                                   class="block w-full text-sm text-gray-500 px-4 py-2 bg-transparent focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                        </div>
                     </div>
                 {% else %}
                     <div class="relative flex w-full items-stretch rounded-lg h-11 bg-background-light-alt dark:bg-background-dark-alt border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark">
