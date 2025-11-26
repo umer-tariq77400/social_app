@@ -198,12 +198,22 @@ if DEBUG:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 else:
+    # Azure Blob Storage configuration for production
     AZURE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", default="")
     AZURE_ACCOUNT_KEY = config("AZURE_STORAGE_ACCOUNT_KEY", default="")
-    AZURE_CONTAINER_NAME = config("AZURE_STORAGE_CONTAINER_NAME", default="")
-    MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER_NAME}/"
+    AZURE_CONTAINER = config("AZURE_STORAGE_CONTAINER_NAME", default="")
     
-    # Configure django-storages for Azure
+    # Azure SDK settings for django-storages
+    AZURE_STORAGE_CONNECTION_STRING = config("AZURE_STORAGE_CONNECTION_STRING", default="")
+    AZURE_STORAGE_CUSTOM_DOMAIN = config("AZURE_STORAGE_CUSTOM_DOMAIN", default="")
+    
+    # Build MEDIA_URL from custom domain if available, otherwise use account name
+    if AZURE_STORAGE_CUSTOM_DOMAIN and AZURE_CONTAINER:
+        MEDIA_URL = f"https://{AZURE_STORAGE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/"
+    else:
+        MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/"
+    
+    # Configure django-storages for Azure Blob Storage
     DEFAULT_FILE_STORAGE = "storages.backends.azure_storage.AzureStorage"
 
 
