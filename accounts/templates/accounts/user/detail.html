@@ -77,7 +77,7 @@
                     Gallery ({{ user.image_set.count }})
                 </h2>
                 <div id="image-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {% include "images/image/list_images.html" %}
+                    {% include "includes/list_images_subset.html" %}
                 </div>
             </div>
         {% else %}

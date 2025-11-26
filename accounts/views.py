@@ -80,7 +80,7 @@ def dashboard(request):
     
     # Load bookmarklet code from file
     bookmarklet_file = os.path.join(
-        settings.BASE_DIR, "images", "templates", "bookmarklet_launcher.js"
+        settings.BASE_DIR, "static", "js", "bookmarklet_launcher.js"
     )
     with open(bookmarklet_file, "r") as f:
         bookmarklet_code = "javascript:" + f.read().strip()
@@ -191,7 +191,7 @@ def user_detail(request, username):
     if request.GET.get("images_only"):
         return render(
             request,
-            "images/image/list_images.html",
+            "includes/list_images_subset.html",
             {"section": "people", "user": user, "images": images},
         )
 

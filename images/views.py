@@ -79,7 +79,7 @@ def image_list(request):
     if images_only:
         return render(
             request,
-            "images/image/list_images.html",
+            "includes/list_images_subset.html",
             {"section": "images", "images": images},
         )
     return render(
