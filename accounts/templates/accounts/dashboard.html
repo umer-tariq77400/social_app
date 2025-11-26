@@ -42,7 +42,7 @@
                     {% for image in user_images %}
                         <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden">
                             <a href="{{ image.get_absolute_url }}">
-                                <img alt="{{ image.title }}" class="w-full h-48 object-cover" src="{{ image.image.url }}"/>
+                                <img alt="{{ image.title }}" class="w-full h-48 object-cover" src="{{ image.original_image.url }}"/>
                             </a>
                             <div class="p-4 space-y-2">
                                 <div class="flex items-center justify-between text-sm text-text-light-body dark:text-text-dark-body">

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import image_create, image_detail, image_like, image_list, image_ranking
+from .views import image_create, image_detail, image_like, image_list, image_ranking, image_edit
 
 app_name = "images"
 
@@ -7,6 +7,7 @@ urlpatterns = [
     path("create/", image_create, name="create"),
     path("<int:id>/<slug:slug>/", image_detail, name="detail"),
     path("like/", image_like, name="like"),
+    path("edit/", image_edit, name="edit"),
     path("", image_list, name="list"),
     path("ranking/", image_ranking, name="ranking"),
 ]

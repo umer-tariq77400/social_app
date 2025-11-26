@@ -21,7 +21,7 @@
             <div class="group relative aspect-[3/4] overflow-hidden rounded-xl"
                  x-data="imageLike('{{ image.id }}', '{% if request.user in users_like %}unlike{% else %}like{% endif %}', {{ image.total_likes|default:0 }})">
                 <a href="{{ image.get_absolute_url }}" class="block h-full w-full">
-                    {% thumbnail image.image "500x500" crop="smart" quality=90 as im %}
+                    {% thumbnail image.original_image "500x500" crop="smart" quality=90 as im %}
                         <img
                             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                             src="{{ im.url }}"

@@ -10,13 +10,38 @@
     <div class="bg-white dark:bg-background-dark-alt rounded-xl shadow-lg overflow-hidden flex flex-col lg:flex-row">
       <!-- Image Section -->
       <div class="w-full lg:w-3/5">
-        <a href="{{ image.url }}" target="_blank" rel="noopener noreferrer">
-          <img
-            alt="{{ image.title }}"
-            class="w-full h-full object-cover"
-            src="{{ image.image.url }}"
-          />
-        </a>
+        {% if image.edited_image %}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h2 class="text-lg font-bold text-center mb-2">Original Image</h2>
+              <a href="{{ image.original_image.url }}" target="_blank" rel="noopener noreferrer">
+                <img
+                  alt="Original {{ image.title }}"
+                  class="w-full h-full object-cover rounded-lg"
+                  src="{{ image.original_image.url }}"
+                />
+              </a>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-center mb-2">Edited Image</h2>
+              <a href="{{ image.edited_image.url }}" target="_blank" rel="noopener noreferrer">
+                <img
+                  alt="Edited {{ image.title }}"
+                  class="w-full h-full object-cover rounded-lg"
+                  src="{{ image.edited_image.url }}"
+                />
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{{ image.original_image.url }}" target="_blank" rel="noopener noreferrer">
+            <img
+              alt="{{ image.title }}"
+              class="w-full h-full object-cover"
+              src="{{ image.original_image.url }}"
+            />
+          </a>
+        {% endif %}
       </div>
       
       <!-- Details Section -->
@@ -53,6 +78,12 @@
             <p class="text-text-light-body dark:text-dark-body text-sm leading-relaxed">
               {{ image.description|linebreaks }}
             </p>
+          {% endif %}
+          {% if image.prompt %}
+            <div class="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <h3 class="text-sm font-bold mb-2">AI Prompt:</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300 font-mono">{{ image.prompt }}</p>
+            </div>
           {% endif %}
         </div>
         

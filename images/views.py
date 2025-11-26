@@ -1,11 +1,20 @@
+import base64
 import redis
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+import os
+import google.genai as genai
+from google.genai import types
 from django.views.decorators.http import require_POST
+from django.core.files.base import ContentFile
+from django.utils.text import slugify
+from PIL import Image as PILImage
+from io import BytesIO
 
 from actions.utils import create_action
 
@@ -25,13 +34,10 @@ def image_create(request):
         form = ImageCreateForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             new_image = form.save(commit=False)
-
             new_image.user = request.user
             new_image.save()
             create_action(request.user, "bookmarked image", new_image)
-
             messages.success(request, "Image added successfully")
-
             return redirect(new_image.get_absolute_url())
     else:
         # Use 'initial' instead of 'data' to pre-fill form without triggering validation
@@ -164,3 +170,55 @@ def image_like(request):
         except Image.DoesNotExist:
             pass
     return JsonResponse({"status": "error"})
+
+@login_required
+@require_POST
+def image_edit(request):
+    prompt = request.POST.get("prompt")
+    image_file = request.FILES.get("file")
+    image_url = request.POST.get("url")
+
+    if prompt and (image_file or image_url):
+        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+        model = "gemini-flash-image"
+
+        if image_file:
+            image_data = image_file.read()
+        else:
+            # Download the image from the URL
+            try:
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                }
+                response = requests.get(image_url, headers=headers, timeout=10)
+                if response.status_code != 200:
+                    return JsonResponse({"status": "error", "message": "Unable to download image."})
+                image_data = response.content
+            except requests.exceptions.RequestException as e:
+                return JsonResponse({"status": "error", "message": f"Error downloading image: {str(e)}"})
+
+        img = PILImage.open(BytesIO(image_data))
+        response = client.models.generate_content(
+            model=model,
+            contents=[
+                types.Content(
+                    parts=[
+                        types.Part.from_text(prompt),
+                        types.Part.from_pil(img)
+                    ]
+                )
+            ],
+            config=types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"]
+            ),
+        )
+
+        # Return the edited image as a base64 string
+        edited_image_part = response.parts[0]
+        edited_image_data = edited_image_part.inline_data.data
+        mime_type = edited_image_part.inline_data.mime_type
+        edited_image_base64 = base64.b64encode(edited_image_data).decode("utf-8")
+
+        return JsonResponse({"status": "ok", "image_data": edited_image_base64, "mime_type": mime_type})
+
+    return JsonResponse({"status": "error", "message": "Prompt and image are required."})

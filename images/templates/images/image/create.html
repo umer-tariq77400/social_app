@@ -45,6 +45,8 @@
 
           <form method="post" enctype="multipart/form-data" class="flex flex-col gap-6" id="image-form">
             {% csrf_token %}
+            <input type="hidden" name="edited_image" id="edited_image">
+            <input type="hidden" name="mime_type" id="mime_type">
 
             {% if form.non_field_errors %}
             <div class="rounded-lg border border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-400">
@@ -122,7 +124,13 @@
             </div>
             {% endfor %}
 
+            <div id="loading-overlay" class="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+                <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
             <footer class="flex items-center justify-end gap-4 border-t border-solid border-border-light dark:border-border-dark pt-6 mt-2">
+                <button type="button" id="generate-button" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 bg-purple-600 px-6 text-sm font-bold text-white transition-all hover:bg-purple-700 hover:shadow-lg">
+                Generate with AI
+                </button>
                 <a href="{% url 'images:list' %}"
                 class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 bg-gray-100 px-5 text-sm font-bold text-text-light dark:text-text-dark hover:bg-gray-200 transition-colors border border-border-light dark:border-border-dark"
                 >
@@ -137,4 +145,55 @@
     </div>
   </main>
 </div>
+{% block domready %}
+<script>
+document.getElementById('generate-button').addEventListener('click', function() {
+    var form = document.getElementById('image-form');
+    var formData = new FormData(form);
+    var prompt = formData.get('prompt');
+    var url = formData.get('url');
+    var file = form.querySelector('input[type="file"]').files[0];
+    var loadingOverlay = document.getElementById('loading-overlay');
+
+    if (!url && !file) {
+        alert('Please provide an image URL or upload a file first.');
+        return;
+    }
+
+    if (!prompt) {
+        alert('Please enter a prompt for the AI to use.');
+        return;
+    }
+
+    loadingOverlay.style.display = 'flex';
+
+    fetch("{% url 'images:edit' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            var previewImage = document.querySelector('img[alt="Preview"]');
+            if (previewImage) {
+                previewImage.src = 'data:' + data.mime_type + ';base64,' + data.image_data;
+                document.getElementById('edited_image').value = data.image_data;
+                document.getElementById('mime_type').value = data.mime_type;
+            }
+        } else {
+            alert('An error occurred while editing the image.');
+        }
+        loadingOverlay.style.display = 'none';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while editing the image.');
+        loadingOverlay.style.display = 'none';
+    });
+});
+</script>
+{% endblock domready %}
 {% endblock content %}

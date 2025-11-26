@@ -1,3 +1,5 @@
+import base64
+import mimetypes
 import requests
 from django import forms
 from django.core.files.base import ContentFile
@@ -11,10 +13,12 @@ class ImageCreateForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={"class": "form-control"}),
     )
+    edited_image = forms.CharField(widget=forms.HiddenInput(), required=False)
+    mime_type = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Image
-        fields = ["title", "url", "description"]
+        fields = ["title", "url", "description", "prompt"]
         widgets = {
             "title": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Enter image title"}
@@ -27,6 +31,13 @@ class ImageCreateForm(forms.ModelForm):
                     "class": "form-control",
                     "placeholder": "Enter image description",
                     "rows": 4,
+                }
+            ),
+            "prompt": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter a prompt to edit the image with AI",
+                    "rows": 2,
                 }
             ),
         }
@@ -59,7 +70,7 @@ class ImageCreateForm(forms.ModelForm):
 
         if image_file:
             # If file is uploaded, save it directly
-            image.image = image_file
+            image.original_image = image_file
         elif image_url:
             # If URL is provided, download it
             extension = image_url.rsplit(".", 1)[-1].lower()
@@ -73,13 +84,24 @@ class ImageCreateForm(forms.ModelForm):
                     raise forms.ValidationError(
                         f"Unable to download image. Server returned status {response.status_code}."
                     )
-                image.image.save(image_name, ContentFile(response.content), save=False)
+                image.original_image.save(image_name, ContentFile(response.content), save=False)
             except requests.exceptions.Timeout:
                 raise forms.ValidationError(
                     "Image download timed out. URL may be slow or invalid."
                 )
             except requests.exceptions.RequestException as e:
                 raise forms.ValidationError(f"Error downloading image: {str(e)}")
+
+        edited_image_data = self.cleaned_data.get("edited_image")
+        if edited_image_data:
+            image_data = base64.b64decode(edited_image_data)
+            mime_type = self.cleaned_data.get("mime_type")
+            extension = mimetypes.guess_extension(mime_type)
+            image.edited_image.save(
+                f"{slugify(name)}_edited{extension}",
+                ContentFile(image_data),
+                save=False,
+            )
 
         if commit:
             image.save()
