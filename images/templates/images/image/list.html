@@ -5,18 +5,14 @@
 
 {% block content %}
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl md:text-4xl font-display font-bold text-gray-900 tracking-tight">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <h1 class="text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-white tracking-tight">
             Images Bookmarked
         </h1>
-        <div class="flex gap-3">
-            <a href="{% url 'images:ranking' %}" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+        <div>
+            <a href="{% url 'images:ranking' %}" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 shadow-sm">
                 <span class="material-symbols-outlined text-yellow-500">emoji_events</span>
                 <span>Ranking</span>
-            </a>
-            <a href="{% url 'images:create' %}" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
-                <span class="material-symbols-outlined">add</span>
-                <span>Add Image</span>
             </a>
         </div>
     </div>
