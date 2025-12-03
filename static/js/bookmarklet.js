@@ -84,7 +84,7 @@ function selectImage(imagesContainer, bookmarklet) {
             
             // Create a form to submit data via POST
             const form = document.createElement('form');
-            form.method = 'GET'; // Still using GET but we'll fix the URL length issue by not encoding the whole image if it's base64
+            form.method = 'POST';
             form.action = siteUrl + 'images/create/';
             form.target = '_blank';
 

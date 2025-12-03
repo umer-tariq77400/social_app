@@ -39,15 +39,6 @@ class ImageCreateForm(forms.ModelForm):
         if not url and not file:
             raise forms.ValidationError("Please provide either an image URL or upload a file.")
         
-        if url and not file:
-            # Only validate URL extension if we are downloading from URL
-            valid_extensions = ["jpg", "jpeg", "png"]
-            extension = url.rsplit(".", 1)[-1].lower()
-            if extension not in valid_extensions:
-                raise forms.ValidationError(
-                    "The given URL does not match valid image extensions (jpg, jpeg, png)."
-                )
-        
         return cleaned_data
 
     def save(self, force_insert=False, force_update=False, commit=True):
@@ -62,8 +53,6 @@ class ImageCreateForm(forms.ModelForm):
             image.image = image_file
         elif image_url:
             # If URL is provided, download it
-            extension = image_url.rsplit(".", 1)[-1].lower()
-            image_name = f"{name}.{extension}"
             try:
                 headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -73,6 +62,21 @@ class ImageCreateForm(forms.ModelForm):
                     raise forms.ValidationError(
                         f"Unable to download image. Server returned status {response.status_code}."
                     )
+                
+                # Determine extension from content-type or URL
+                content_type = response.headers.get("Content-Type", "")
+                extension = "jpg" # Default
+                if "image/jpeg" in content_type:
+                    extension = "jpg"
+                elif "image/png" in content_type:
+                    extension = "png"
+                elif "." in image_url.split("/")[-1]:
+                     # Fallback to URL extension if available
+                     ext = image_url.rsplit(".", 1)[-1].lower()
+                     if ext in ["jpg", "jpeg", "png"]:
+                         extension = ext
+
+                image_name = f"{name}.{extension}"
                 image.image.save(image_name, ContentFile(response.content), save=False)
             except requests.exceptions.Timeout:
                 raise forms.ValidationError(
