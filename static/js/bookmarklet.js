@@ -1,4 +1,4 @@
-const siteUrl = "http://localhost:8000/";
+const siteUrl = window.bookmarkletSiteUrl || "http://localhost:8000/";
 const styleUrl = siteUrl + "static/css/bookmarklet.css";
 const minWidth = 100;
 const minHeight = 100;
@@ -113,4 +113,4 @@ function bookmarkletLaunch(){
 }
 
 // Launch bookmarklet
-bookmarkletLaunch();
+// bookmarkletLaunch();
