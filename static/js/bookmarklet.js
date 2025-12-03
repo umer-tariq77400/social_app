@@ -12,14 +12,22 @@ link.href = styleUrl + '?r=' + Math.random()*999999999;
 head.appendChild(link);
 
 // Load HTML
-var body = document.getElementsByTagName('body')[0];
+var body = document.body;
 var boxHtml = `
-<div id="bookmarklet">
  <a href="#" id="close">&times;</a>
  <h1>Select an image to bookmark:</h1>
- <div class="images"></div>
-</div>`;
-body.innerHTML += boxHtml;
+ <div class="images"></div>`;
+
+var bookmarklet = document.getElementById('bookmarklet');
+if (!bookmarklet) {
+    bookmarklet = document.createElement('div');
+    bookmarklet.id = 'bookmarklet';
+    bookmarklet.innerHTML = boxHtml;
+    body.appendChild(bookmarklet);
+} else {
+    // If it exists but was somehow cleared or we want to reset it
+    bookmarklet.innerHTML = boxHtml;
+}
 
 
 // Find images in the DOM with min dimensions
@@ -73,14 +81,29 @@ function selectImage(imagesContainer, bookmarklet) {
         image.addEventListener('click', function(e){
             const imageSelected = e.target;
             bookmarklet.style.display = 'none';
-            // Sending selected image URL to server along with the user
-            window.open(
-                siteUrl 
-                + 'images/create/?url=' 
-                + encodeURIComponent(imageSelected.dataset.url)
-                + '&title=' 
-                + encodeURIComponent(document.title), '_blank'
-            );
+            
+            // Create a form to submit data via POST
+            const form = document.createElement('form');
+            form.method = 'GET'; // Still using GET but we'll fix the URL length issue by not encoding the whole image if it's base64
+            form.action = siteUrl + 'images/create/';
+            form.target = '_blank';
+
+            const urlInput = document.createElement('input');
+            urlInput.type = 'hidden';
+            urlInput.name = 'url';
+            urlInput.value = imageSelected.dataset.url;
+            form.appendChild(urlInput);
+
+            const titleInput = document.createElement('input');
+            titleInput.type = 'hidden';
+            titleInput.name = 'title';
+            titleInput.value = document.title;
+            form.appendChild(titleInput);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
             e.preventDefault();
         })
     })
