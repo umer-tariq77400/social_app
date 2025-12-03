@@ -1,0 +1,23 @@
+{% for i in "1234" %}
+<div class="skeleton-item group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 animate-pulse">
+    <!-- Image placeholder -->
+    <div class="h-64 bg-gray-200 dark:bg-gray-700 w-full"></div>
+    
+    <div class="p-4">
+        <!-- Title placeholder -->
+        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+        
+        <!-- Meta info placeholder -->
+        <div class="flex items-center justify-between mt-3">
+            <div class="flex items-center space-x-4">
+                <!-- Likes -->
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                <!-- Views -->
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+            </div>
+            <!-- Date -->
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+        </div>
+    </div>
+</div>
+{% endfor %}
