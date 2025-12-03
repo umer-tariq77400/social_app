@@ -269,3 +269,12 @@ if not DEBUG:
         "style-src": ("'self'", "'unsafe-inline'"),
         "img-src": ("'self'", "data:", "https:"),
     }
+
+# Session cookie settings for bookmarklet cross-site functionality
+# In production, we need Lax to allow the session to work when navigating from external sites
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+
+# CSRF cookie settings - also needs to be Lax for bookmarklet
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # JavaScript needs to read this for AJAX calls

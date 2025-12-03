@@ -103,49 +103,122 @@ A Django 5.2 social networking application featuring user authentication (email 
 3. Include template in `accounts/templates/accounts/dashboard.html` action loop
 4. Action deduplication is automatic (1-minute window)
 
-### Debug Redis Issues
-- Django admin: visit `/admin/` to inspect Image models (total_likes, users_like)
-- If Redis unavailable: graceful fallback sets views=0; no errors raised
-- To clear Redis: `redis-cli FLUSHDB` (development only)
+## Implementation Details for Common Tasks
 
-## Command Reference
+### Image Download & Validation (`images/forms.py`)
+- `ImageCreateForm.save()` downloads images via `requests` library with User-Agent header
+- Detects file type from `Content-Type` response header (fallback: URL extension)
+- Valid types: jpg, jpeg, png only
+- Converts downloaded bytes to Django `ContentFile` before saving
+- Timeout: 10 seconds; raises `ValidationError` on failure
+- Both URL and file upload paths supported; validator requires at least one
+
+### View Count Tracking (`images/views.py`, `accounts/views.py`)
+- Redis key format: `image:{id}:views` (e.g., `image:42:views`)
+- Incremented on `image_detail` view (every visit)
+- Retrieved via Redis pipeline for efficiency in list/paginated views
+- Pipeline pattern: `r.pipeline(); for img in images: pipeline.get(...); view_counts = pipeline.execute()`
+- Graceful degradation: missing Redis key returns `None`, handled as `0 views`
+- Always wrap in try-except; exceptions silently fallback to `views=0`
+
+### Action Deduplication (`actions/utils.py`)
+- `create_action(user, verb, target=None)` prevents duplicate actions within 60-second window
+- Deduplication checks: user_id, verb, AND (if target) target_ct + target_id
+- Uses `timezone.now() - timedelta(minutes=1)` for window boundary
+- Returns action object if created; None if deduplicated
+- Call this in views after Follow/Like/Bookmark actions for activity stream
+
+## Quick Start & Essential Commands
 
 ```bash
-# Core Django
-python manage.py runserver                    # Development server
-python manage.py makemigrations [app]         # Create migration files
+# Setup (first time)
+pip install -e .                              # Install dependencies from pyproject.toml
 python manage.py migrate                      # Apply migrations
 python manage.py createsuperuser              # Create admin user
 
-# Tailwind CSS (if editing theme/static_src/src/styles.css)
-python manage.py tailwind build
+# Development
+python manage.py runserver                    # Dev server (SQLite, local media)
+python manage.py makemigrations [app]         # Create migration files
+python manage.py migrate                      # Apply migrations
+python manage.py shell                        # Django shell (for testing queries/logic)
+python manage.py tailwind build               # Rebuild CSS (edit theme/static_src/src/styles.css first)
+python manage.py test                         # Run all tests
+python manage.py test [app].[TestClass]       # Run specific test class
 
-# Shell access
-python manage.py shell                        # Interactive Django shell
+# HTTPS Testing (requires cert.crt, cert.key - see DEVELOPMENT.md)
+python manage.py runsslserver
+
+# Admin
+http://localhost:8000/admin/                  # Django admin (superuser only)
 ```
+
+## Critical Gotchas & Debugging
+
+**INSTALLED_APPS order**: `accounts` MUST come BEFORE `django.contrib.auth` so `User.add_to_class("following", ...)` executes on Django startup. Moving `accounts` after `contrib.auth` breaks the entire follow system. This is enforced in `accounts/models.py` line 4-9.
+
+**OAuth Reconnect**: If user disconnects then reconnects Google OAuth, the `get_or_create_user_by_email` pipeline function matches by email to prevent duplicate users. Without this, same email would create new User. See `accounts/authentication.py:get_or_create_user_by_email()`.
+
+**Profile Creation**: `create_profile` pipeline ensures Profile exists after OAuth signup. If this fails, users can register but have no Profile → `profile.py` OneToOne access fails. Always check for profile existence or create in migrations if needed. See `accounts/authentication.py:create_profile()`.
+
+**Action Deduplication**: The 60-second window is strict. Identical follow/like actions within 60s are silently deduplicated. If testing, wait 60s or manipulate `timezone.now()` in shell. See `actions/utils.py:create_action()`.
+
+**Redis Fallback**: All Redis calls fail gracefully to `views=0`. If you forget try-except, code crashes in production. Test without Redis running to catch issues early. Pattern: `try: r.get(...) except Exception: ...` (no logging, silent fallback).
+
+**BookmarkLet Code**: The bookmarklet JavaScript is loaded from disk (`static/js/bookmarklet_launcher.js`) at view time and prefixed with `javascript:` in `accounts/views.py:dashboard()`. If bookmarklet fails, check file exists, is valid JS, and all variables are defined.
+
+**Testing**: Use `python manage.py test [app].[TestClass].[test_method]` for specific tests. Tests use fixtures and mocking (see `images/tests.py` for request/mock patterns). Always use `setUp()` to create test users/images. Tests auto-rollback database after each test.
+
+## Deployment & Azure Integration
+
+**Production Environment**:
+- Uses PostgreSQL (connected via `DATABASE_URL` env var)
+- Media storage → Azure Blob Storage via `django-storages[azure]`
+- Redis from RedisCloud (via `REDISCLOUD_URL`)
+- Heroku deployment (see `Procfile`, `heroku.yml`)
+- Static files served via WhiteNoise
+
+**Configuring Azure Storage**: Set these env vars:
+- `AZURE_STORAGE_ACCOUNT_NAME`
+- `AZURE_STORAGE_ACCOUNT_KEY`
+- `AZURE_STORAGE_CONTAINER_NAME` (defaults to `social-app-media`)
+
+**Local Development Setup**:
+1. Create `.env` file with `DEBUG=True` (or omit for defaults)
+2. Uses SQLite by default; no DATABASE_URL needed
+3. Uses local filesystem for media (FileSystemStorage)
+4. Redis optional for dev; view counts fallback to 0 if unavailable
+5. For HTTPS testing: run `python manage.py runsslserver` (requires self-signed cert)
 
 ## Important Settings
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
 | DEBUG | False in prod, True in dev | Template error details, static file serving |
-| DATABASES | PostgreSQL in prod, SQLite in dev | config/settings.py auto-switches |
-| MEDIA_URL / MEDIA_ROOT | /media/, BASE_DIR/media/ | User uploads (images, profiles) |
-| REDIS_HOST, REDIS_PORT, etc. | Config from .env | View counter cache |
+| DATABASES | PostgreSQL in prod, SQLite in dev | config/settings.py auto-switches via dj_database_url |
+| MEDIA_URL / MEDIA_ROOT | /media/, BASE_DIR/media/ | User uploads (images, profiles). Prod uses Azure Blob Storage |
+| MEDIA_STORAGE | FileSystemStorage (dev), AzureStorage (prod) | Configured in settings via STORAGES dict |
+| REDIS_URL | redis://localhost:6379/0 (dev), REDISCLOUD_URL (prod) | View counter cache. Gracefully falls back to 0 if unavailable |
 | SOCIAL_AUTH_GOOGLE_OAUTH2_KEY/SECRET | From Google Cloud Console | OAuth provider credentials |
 | LOGIN_REDIRECT_URL | 'dashboard' | Redirect after successful login |
 | LOGOUT_REDIRECT_URL | 'logout' | Redirect after logout |
+| INSTALLED_APPS order | accounts before contrib.auth | **Critical**: allows User.add_to_class() for 'following' field |
+| AUTHENTICATION_BACKENDS | ModelBackend, EmailAuthBackend, GoogleOAuth2 | Three backends in order: username, email, then OAuth2 |
+| SOCIAL_AUTH_PIPELINE | Custom functions + defaults | Includes `get_or_create_user_by_email`, `create_profile`, `disconnect_profile` |
 
 ## Code Conventions
 
-**Views**: Function-based for lightweight logic (register, image_create). Inherit auth views for standard patterns.
+**Views**: Function-based for lightweight logic. Decorate with `@login_required` for protected endpoints. AJAX views return `JsonResponse({"status": "ok"})`. Support `?images_only=1` style GET params for partial template selection (e.g., `image_list` returns paginated grid or empty string on empty final page). For GET params with form data, use `initial=request.GET` instead of `data=request.GET` to avoid validation triggers.
 
-**Forms**: Use `ModelForm` when tied to model (UserEditForm, ProfileEditForm, ImageCreateForm). Use `forms.Form` for standalone (LoginForm). Always add CSS classes via widget.attrs for Tailwind.
+**Forms**: Use `ModelForm` when tied to model (UserEditForm, ImageCreateForm). Always add CSS classes via `widget.attrs` for Tailwind (e.g., `"class": "form-control"`). ImageCreateForm validates one of `url` or `file` exists in `clean()`. The `save()` method downloads images via requests with User-Agent header, detects type from Content-Type, validates jpg/jpeg/png only, converts to ContentFile, times out at 10 seconds.
 
-**Models**: Index on frequently queried fields (`-created`, `target_ct`+`target_id`). Use `slug` for SEO URLs. Leverage signals for derived fields (total_likes via m2m_changed).
+**Models**: Define `Meta.indexes` on frequently queried fields (`-created`, `-total_likes`). Use `slug` for SEO URLs; auto-populate in `save()` via `slugify()`. Use `GenericForeignKey` (ContentType + target_id) for heterogeneous relationships (Action → Image/User). Leverage `m2m_changed` signals to sync derived fields (total_likes).
 
-**Templates**: Extend `templates/base.html`. Pass `section="app_name"` to highlight nav. Use `{% if request.user.is_authenticated %}` for conditional content. Use `{% url 'accounts:route_name' %}` for all internal links.
+**Templates**: Extend `templates/base.html`. Pass `section="app_name"` to highlight nav. Render image objects with `image.views` (populated by views after Redis lookup). Render actions with action verb + target link, using action templates in `actions/templates/actions/action/`.
 
-**AJAX**: POST to view, return `JsonResponse({"status": "ok"})`. Use `?param=value` GET params for partial template selection (e.g., `?images_only=1` in image_list).
+**AJAX**: POST endpoints use `request.POST.get("action")` to determine operation (e.g., "follow", "unfollow"). Return JsonResponse. List views support pagination via GET param `page`.
 
-**Error Handling**: Wrap external API calls (requests, Redis) in try-except. Never crash on Redis unavailable; fallback to sensible defaults (0 counts, etc.).
+**Redis Usage**: Initialize at module level: `r = redis.from_url(settings.REDIS_URL)`. Always wrap calls in try-except; silently fallback to sensible defaults (0 counts) if unavailable. Pipeline queries: `pipeline = r.pipeline(); [pipeline.get(...) for img in images]; pipeline.execute()` to fetch multiple keys efficiently. Key format: `image:{id}:views`.
+
+**Signals**: Use `m2m_changed` signals to sync derived fields (e.g., `total_likes` on `Image` model in `images/signals.py`). Always connect signals in `apps.py` via `ready()` method to avoid duplicate registrations.
+
+**Error Handling Pattern**: Wrap external API calls (requests library, Redis) in try-except with descriptive messages. For user-facing errors, use `messages.error(request, "...")`. For form validation, raise `forms.ValidationError(...)`. Never let external service failures crash the app.

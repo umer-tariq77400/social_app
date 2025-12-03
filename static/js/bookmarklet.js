@@ -82,27 +82,12 @@ function selectImage(imagesContainer, bookmarklet) {
             const imageSelected = e.target;
             bookmarklet.style.display = 'none';
             
-            // Create a form to submit data via POST
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = siteUrl + 'images/create/';
-            form.target = '_blank';
-
-            const urlInput = document.createElement('input');
-            urlInput.type = 'hidden';
-            urlInput.name = 'url';
-            urlInput.value = imageSelected.dataset.url;
-            form.appendChild(urlInput);
-
-            const titleInput = document.createElement('input');
-            titleInput.type = 'hidden';
-            titleInput.name = 'title';
-            titleInput.value = document.title;
-            form.appendChild(titleInput);
-
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
+            // Open the create page with GET parameters to preserve session
+            const url = encodeURIComponent(imageSelected.dataset.url);
+            const title = encodeURIComponent(document.title);
+            const createUrl = `${siteUrl}images/create/?url=${url}&title=${title}`;
+            
+            window.open(createUrl, '_blank');
             
             e.preventDefault();
         })

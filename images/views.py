@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from actions.utils import create_action
@@ -16,25 +15,12 @@ from .models import Image
 r = redis.from_url(settings.REDIS_URL)
 
 @login_required
-@csrf_exempt
 def image_create(request):
     """
     Handle image creation via a form. On GET requests, display the form with
     pre-filled data from GET parameters. On POST requests, validate and save
     """
     if request.method == "POST":
-        # If the request contains 'url' and 'title' but no 'file' or 'description',
-        # it's likely coming from the bookmarklet. We should treat this as an initial
-        # form load, not a submission.
-        if 'url' in request.POST and 'title' in request.POST and 'description' not in request.POST:
-             form = ImageCreateForm(initial={
-                 'url': request.POST.get('url'),
-                 'title': request.POST.get('title')
-             })
-             return render(
-                request, "images/image/create.html", {"section": "images", "form": form}
-            )
-
         form = ImageCreateForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             new_image = form.save(commit=False)
